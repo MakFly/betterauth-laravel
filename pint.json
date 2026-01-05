@@ -1,5 +1,9 @@
 {
     "preset": "laravel",
+    "exclude": [
+        "betterauth-core",
+        "vendor"
+    ],
     "rules": {
         "declare_strict_types": true,
         "final_class": true,

@@ -67,8 +67,5 @@ parameters:
         # Comparison with PHPDoc types
         - identifier: identical.alwaysFalse
 
-        # Unused closure use (intentional for future use)
-        - identifier: closure.unusedUse
-
     stubFiles:
         - stubs/phpstan/betterauth-core.stub
