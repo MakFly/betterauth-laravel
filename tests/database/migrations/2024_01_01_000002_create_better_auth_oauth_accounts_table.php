@@ -12,7 +12,7 @@ return new class extends Migration
     {
         Schema::dropIfExists('better_auth_oauth_accounts');
 
-        Schema::create('better_auth_oauth_accounts', function (Blueprint $table) {
+        Schema::create('better_auth_oauth_accounts', function (Blueprint $table): void {
             $table->id();
             $table->uuid('user_id');
             $table->string('provider'); // google, github, facebook, etc.

@@ -5,7 +5,7 @@ declare(strict_types=1);
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\DB;
 
-beforeEach(function () {
+beforeEach(function (): void {
     // Configure for session mode testing
     Config::set('auth.defaults.guard', 'betterauth-session');
     Config::set('auth.guards.betterauth-session', [
@@ -14,8 +14,8 @@ beforeEach(function () {
     ]);
 });
 
-describe('Session Mode Authentication', function () {
-    it('authenticates user with credentials', function () {
+describe('Session Mode Authentication', function (): void {
+    it('authenticates user with credentials', function (): void {
         $user = $this->createTestUser([
             'email' => 'session@example.com',
             'password' => password_hash('Password123!', PASSWORD_ARGON2ID),
@@ -33,7 +33,7 @@ describe('Session Mode Authentication', function () {
         expect($guard->user()->email)->toBe('session@example.com');
     });
 
-    it('fails authentication with wrong password', function () {
+    it('fails authentication with wrong password', function (): void {
         $this->createTestUser([
             'email' => 'session@example.com',
             'password' => password_hash('Password123!', PASSWORD_ARGON2ID),
@@ -50,7 +50,7 @@ describe('Session Mode Authentication', function () {
         expect($guard->guest())->toBeTrue();
     });
 
-    it('stores session in database with metadata', function () {
+    it('stores session in database with metadata', function (): void {
         $user = $this->createTestUser([
             'email' => 'session@example.com',
             'password' => password_hash('Password123!', PASSWORD_ARGON2ID),
@@ -73,7 +73,7 @@ describe('Session Mode Authentication', function () {
         expect(\Carbon\Carbon::parse($session->expires_at))->toBeInstanceOf(\Carbon\Carbon::class);
     });
 
-    it('detects device type correctly', function () {
+    it('detects device type correctly', function (): void {
         $guard = auth('betterauth-session');
 
         // Access private method via reflection
@@ -87,7 +87,7 @@ describe('Session Mode Authentication', function () {
         expect($method->invoke($guard, null))->toBe('unknown');
     });
 
-    it('gets device name from user agent', function () {
+    it('gets device name from user agent', function (): void {
         $guard = auth('betterauth-session');
 
         $reflection = new \ReflectionClass($guard);
@@ -99,7 +99,7 @@ describe('Session Mode Authentication', function () {
         expect($method->invoke($guard, null))->toBe('Unknown Device');
     });
 
-    it('logs out user and revokes session', function () {
+    it('logs out user and revokes session', function (): void {
         $user = $this->createTestUser([
             'email' => 'session@example.com',
             'password' => password_hash('Password123!', PASSWORD_ARGON2ID),
@@ -129,7 +129,7 @@ describe('Session Mode Authentication', function () {
         expect(\Carbon\Carbon::parse($session->expires_at)->isPast())->toBeTrue();
     });
 
-    it('returns null for invalid session user', function () {
+    it('returns null for invalid session user', function (): void {
         // Set a fake user ID in session
         $guard = auth('betterauth-session');
         $guard->get_session()->put($guard->getName().'_id', (string) \Illuminate\Support\Str::uuid7());
@@ -138,7 +138,7 @@ describe('Session Mode Authentication', function () {
         expect($guard->check())->toBeFalse();
     });
 
-    it('revokes all sessions for user', function () {
+    it('revokes all sessions for user', function (): void {
         $user = $this->createTestUser([
             'email' => 'session@example.com',
             'password' => password_hash('Password123!', PASSWORD_ARGON2ID),
@@ -176,7 +176,7 @@ describe('Session Mode Authentication', function () {
         expect($activeSessions)->toBe(0);
     });
 
-    it('revokes other sessions but keeps current one', function () {
+    it('revokes other sessions but keeps current one', function (): void {
         $user = $this->createTestUser([
             'email' => 'session@example.com',
             'password' => password_hash('Password123!', PASSWORD_ARGON2ID),
@@ -225,7 +225,7 @@ describe('Session Mode Authentication', function () {
         expect($otherSessions)->toBe(0);
     });
 
-    it('updates session activity on user retrieval', function () {
+    it('updates session activity on user retrieval', function (): void {
         $user = $this->createTestUser([
             'email' => 'session@example.com',
             'password' => password_hash('Password123!', PASSWORD_ARGON2ID),
@@ -262,13 +262,13 @@ describe('Session Mode Authentication', function () {
         expect(\Carbon\Carbon::parse($updatedActivity)->greaterThan(\Carbon\Carbon::parse($initialActivity)))->toBeTrue();
     });
 
-    it('returns correct guard name', function () {
+    it('returns correct guard name', function (): void {
         $guard = auth('betterauth-session');
 
         expect($guard->getName())->toBe('betterauth-session');
     });
 
-    it('sets user manually', function () {
+    it('sets user manually', function (): void {
         $user = $this->createTestUser();
 
         $guard = auth('betterauth-session');
@@ -279,15 +279,15 @@ describe('Session Mode Authentication', function () {
         expect($guard->id())->toBe($user->id);
     });
 
-    it('returns user provider', function () {
+    it('returns user provider', function (): void {
         $guard = auth('betterauth-session');
 
         expect($guard->getProvider())->toBeInstanceOf(\Illuminate\Contracts\Auth\UserProvider::class);
     });
 });
 
-describe('Session Mode vs Sanctum Comparison', function () {
-    it('demonstrates enhanced session tracking vs Sanctum', function () {
+describe('Session Mode vs Sanctum Comparison', function (): void {
+    it('demonstrates enhanced session tracking vs Sanctum', function (): void {
         $user = $this->createTestUser([
             'email' => 'session@example.com',
             'password' => password_hash('Password123!', PASSWORD_ARGON2ID),
@@ -311,7 +311,7 @@ describe('Session Mode vs Sanctum Comparison', function () {
         // Sanctum doesn't track these details by default
     });
 
-    it('provides session management features Sanctum lacks', function () {
+    it('provides session management features Sanctum lacks', function (): void {
         $user = $this->createTestUser([
             'email' => 'session@example.com',
             'password' => password_hash('Password123!', PASSWORD_ARGON2ID),

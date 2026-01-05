@@ -23,7 +23,7 @@ $namePrefix = $config['name_prefix'] ?? 'betterauth.';
 Route::prefix($prefix)
     ->middleware($middleware)
     ->name($namePrefix)
-    ->group(function () {
+    ->group(function (): void {
         // Public routes
         Route::post('/register', [AuthController::class, 'register'])
             ->name('register');
@@ -35,7 +35,7 @@ Route::prefix($prefix)
             ->name('refresh');
 
         // Protected routes
-        Route::middleware('auth:betterauth')->group(function () {
+        Route::middleware('auth:betterauth')->group(function (): void {
             Route::get('/me', [AuthController::class, 'me'])
                 ->name('me');
 
@@ -72,7 +72,7 @@ Route::prefix($prefix)
 
         // 2FA routes (when enabled)
         if (config('betterauth.2fa.enabled', false)) {
-            Route::middleware('auth:betterauth')->prefix('2fa')->name('2fa.')->group(function () {
+            Route::middleware('auth:betterauth')->prefix('2fa')->name('2fa.')->group(function (): void {
                 Route::get('/status', [\BetterAuth\Laravel\Http\Controllers\TwoFactorController::class, 'status'])
                     ->name('status');
 

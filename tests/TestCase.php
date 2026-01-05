@@ -15,7 +15,7 @@ abstract class TestCase extends OrchestraTestCase
         parent::setUp();
 
         Factory::guessFactoryNamesUsing(
-            fn (string $modelName) => 'BetterAuth\\Laravel\\Database\\Factories\\'.class_basename($modelName).'Factory'
+            fn (string $modelName) => 'BetterAuth\\Laravel\\Database\\Factories\\'.class_basename($modelName).'Factory',
         );
     }
 

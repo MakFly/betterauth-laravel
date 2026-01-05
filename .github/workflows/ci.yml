@@ -1,0 +1,116 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        php: ['8.2', '8.3', '8.4']
+        laravel: ['10.*', '11.*', '12.*']
+        exclude:
+          # Laravel 12 requires PHP 8.2+
+          - php: '8.2'
+            laravel: '12.*'
+
+    name: PHP ${{ matrix.php }} - Laravel ${{ matrix.laravel }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Checkout betterauth-core
+        uses: actions/checkout@v4
+        with:
+          repository: MakFly/betterauth-core
+          path: betterauth-core
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          extensions: dom, curl, libxml, mbstring, zip, pcntl, pdo, sqlite, pdo_sqlite
+          coverage: none
+
+      - name: Install dependencies
+        run: |
+          composer config repositories.betterauth-core path ./betterauth-core
+          composer require "laravel/framework:${{ matrix.laravel }}" --no-interaction --no-update
+          composer update --prefer-dist --no-interaction --no-progress
+
+      - name: Run Pint
+        run: composer pint -- --test
+
+      - name: Run PHPStan
+        run: composer phpstan
+
+      - name: Run tests
+        run: composer test
+
+  code-style:
+    runs-on: ubuntu-latest
+    name: Code Style
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Checkout betterauth-core
+        uses: actions/checkout@v4
+        with:
+          repository: MakFly/betterauth-core
+          path: betterauth-core
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: dom, curl, libxml, mbstring, zip
+          coverage: none
+
+      - name: Install dependencies
+        run: |
+          composer config repositories.betterauth-core path ./betterauth-core
+          composer install --prefer-dist --no-interaction --no-progress
+
+      - name: Check code style
+        run: composer pint -- --test
+
+  static-analysis:
+    runs-on: ubuntu-latest
+    name: Static Analysis
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Checkout betterauth-core
+        uses: actions/checkout@v4
+        with:
+          repository: MakFly/betterauth-core
+          path: betterauth-core
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: dom, curl, libxml, mbstring, zip
+          coverage: none
+
+      - name: Install dependencies
+        run: |
+          composer config repositories.betterauth-core path ./betterauth-core
+          composer install --prefer-dist --no-interaction --no-progress
+
+      - name: Run PHPStan
+        run: composer phpstan

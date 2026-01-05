@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -10,7 +12,7 @@ return new class extends Migration
     {
         Schema::dropIfExists('better_auth_sessions');
 
-        Schema::create('better_auth_sessions', function (Blueprint $table) {
+        Schema::create('better_auth_sessions', function (Blueprint $table): void {
             $table->uuid('id')->primary();
             $table->uuid('user_id');
             $table->string('ip_address', 45)->nullable();

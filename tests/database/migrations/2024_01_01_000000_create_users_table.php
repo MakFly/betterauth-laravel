@@ -12,7 +12,7 @@ return new class extends Migration
     {
         Schema::dropIfExists('users');
 
-        Schema::create('users', function (Blueprint $table) {
+        Schema::create('users', function (Blueprint $table): void {
             $table->uuid('id')->primary();
             $table->string('email')->unique();
             $table->string('password')->nullable();
@@ -25,7 +25,7 @@ return new class extends Migration
             $table->timestamps();
         });
 
-        Schema::create('better_auth_refresh_tokens', function (Blueprint $table) {
+        Schema::create('better_auth_refresh_tokens', function (Blueprint $table): void {
             $table->string('token', 64)->primary();
             $table->uuid('user_id');
             $table->timestamp('expires_at');
@@ -37,7 +37,7 @@ return new class extends Migration
             $table->index(['user_id', 'revoked']);
         });
 
-        Schema::create('better_auth_sessions', function (Blueprint $table) {
+        Schema::create('better_auth_sessions', function (Blueprint $table): void {
             $table->uuid('id')->primary();
             $table->uuid('user_id');
             $table->string('ip_address', 45)->nullable();
@@ -52,7 +52,7 @@ return new class extends Migration
             $table->index('user_id');
         });
 
-        Schema::create('better_auth_magic_links', function (Blueprint $table) {
+        Schema::create('better_auth_magic_links', function (Blueprint $table): void {
             $table->uuid('id')->primary();
             $table->string('email');
             $table->string('token', 64)->unique();
@@ -63,7 +63,7 @@ return new class extends Migration
             $table->index('email');
         });
 
-        Schema::create('better_auth_totp_secrets', function (Blueprint $table) {
+        Schema::create('better_auth_totp_secrets', function (Blueprint $table): void {
             $table->uuid('id')->primary();
             $table->uuid('user_id')->unique();
             $table->string('secret', 64);

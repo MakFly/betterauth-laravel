@@ -29,9 +29,13 @@ final class BetterAuthSessionGuard implements Guard
     use GuardHelpers;
 
     private readonly string $name;
+
     private readonly Session $session;
+
     private readonly BetterAuthManager $authManager;
+
     private ?string $sessionId = null;
+
     private bool $loggedOut = false;
 
     public function __construct(
@@ -73,6 +77,7 @@ final class BetterAuthSessionGuard implements Guard
         if ($this->user === null) {
             // User in session but not in database = invalid session
             $this->clearSessionData();
+
             return null;
         }
 
@@ -198,7 +203,7 @@ final class BetterAuthSessionGuard implements Guard
                 'expires_at' => now()->addMinutes(config('session.lifetime', 120)),
                 'last_activity_at' => now(),
                 'created_at' => now(),
-            ]
+            ],
         );
     }
 
@@ -300,11 +305,11 @@ final class BetterAuthSessionGuard implements Guard
             return 'Firefox';
         }
 
-        if (preg_match('/Chrome/i', $userAgent) && !preg_match('/Edg/i', $userAgent)) {
+        if (preg_match('/Chrome/i', $userAgent) && ! preg_match('/Edg/i', $userAgent)) {
             return 'Chrome';
         }
 
-        if (preg_match('/Safari/i', $userAgent) && !preg_match('/Chrome/i', $userAgent)) {
+        if (preg_match('/Safari/i', $userAgent) && ! preg_match('/Chrome/i', $userAgent)) {
             return 'Safari';
         }
 
@@ -357,7 +362,7 @@ final class BetterAuthSessionGuard implements Guard
      */
     public function guest(): bool
     {
-        return !$this->check();
+        return ! $this->check();
     }
 
     /**
@@ -395,7 +400,7 @@ final class BetterAuthSessionGuard implements Guard
      */
     public function revokeOtherSessions(): int
     {
-        if (!$this->user()) {
+        if (! $this->user()) {
             return 0;
         }
 
@@ -412,7 +417,7 @@ final class BetterAuthSessionGuard implements Guard
      */
     public function revokeAllSessions(): int
     {
-        if (!$this->user()) {
+        if (! $this->user()) {
             return 0;
         }
 

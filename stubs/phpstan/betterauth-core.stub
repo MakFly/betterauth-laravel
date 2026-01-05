@@ -1,0 +1,62 @@
+<?php
+
+namespace BetterAuth\Core;
+
+class TokenService implements Interfaces\TokenSignerInterface
+{
+    public function __construct(string $secretKey, string $issuer = 'betterauth') {}
+
+    /** @param array<string, mixed> $claims */
+    public function sign(array $claims, int $expiresIn = 3600): string {}
+
+    /** @return array<string, mixed> */
+    public function verify(string $token): array {}
+}
+
+class PasswordHasher
+{
+    public function __construct(
+        int $memoryCost = PASSWORD_ARGON2_DEFAULT_MEMORY_COST,
+        int $timeCost = PASSWORD_ARGON2_DEFAULT_TIME_COST,
+        int $threads = PASSWORD_ARGON2_DEFAULT_THREADS
+    ) {}
+
+    public function hash(string $password): string {}
+    public function verify(string $password, string $hash): bool {}
+    public function needsRehash(string $hash): bool {}
+}
+
+namespace BetterAuth\Core\Config;
+
+class AuthConfig
+{
+    public readonly string $secretKey;
+    public readonly int $tokenLifetime;
+    public readonly int $refreshTokenLifetime;
+
+    /** @param array<string, mixed> $overrides */
+    public static function forApi(string $secret, array $overrides = []): self {}
+
+    /** @param array<string, mixed> $overrides */
+    public static function forMonolith(string $secret, array $overrides = []): self {}
+
+    /** @param array<string, mixed> $overrides */
+    public static function forHybrid(string $secret, array $overrides = []): self {}
+}
+
+namespace BetterAuth\Core\Interfaces;
+
+interface TokenSignerInterface
+{
+    /** @param array<string, mixed> $claims */
+    public function sign(array $claims, int $expiresIn = 3600): string;
+
+    /** @return array<string, mixed> */
+    public function verify(string $token): array;
+}
+
+namespace BetterAuth\Core\Exceptions;
+
+class InvalidCredentialsException extends \Exception {}
+class InvalidTokenException extends \Exception {}
+class ExpiredTokenException extends \Exception {}

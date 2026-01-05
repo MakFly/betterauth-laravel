@@ -20,7 +20,7 @@ trait HasBetterAuth
      */
     public static function bootHasBetterAuth(): void
     {
-        static::creating(function ($model) {
+        static::creating(function ($model): void {
             // Generate UUID if using UUID strategy and no ID set
             if (empty($model->{$model->getKeyName()}) && static::usesBetterAuthUuid()) {
                 $model->{$model->getKeyName()} = (string) Str::uuid7();
@@ -105,7 +105,7 @@ trait HasBetterAuth
 
         $this->roles = array_values(array_filter(
             $this->getRoles(),
-            fn ($r) => $r !== $role
+            fn ($r) => $r !== $role,
         ));
 
         return $this;
@@ -209,7 +209,7 @@ trait HasBetterAuth
                 $hash = md5(strtolower(trim($this->email)));
 
                 return "https://www.gravatar.com/avatar/{$hash}?d=mp&s=200";
-            }
+            },
         );
     }
 }

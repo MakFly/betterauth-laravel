@@ -24,14 +24,13 @@ final class OAuthManager
     public function __construct(
         private readonly Application $app,
         private readonly array $providerConfigs,
-    ) {
-    }
+    ) {}
 
     /**
      * Get a provider instance by name.
      *
      * @param  string  $name  Provider name (e.g., 'google', 'github')
-     * @return OAuthProviderInterface
+     *
      * @throws \InvalidArgumentException
      */
     public function getProvider(string $name): OAuthProviderInterface
@@ -48,15 +47,13 @@ final class OAuthManager
         }
 
         throw new \InvalidArgumentException(
-            "Laravel Socialite is not installed. ".
-            "Run: composer require laravel/socialite"
+            'Laravel Socialite is not installed. '.
+            'Run: composer require laravel/socialite',
         );
     }
 
     /**
      * Redirect to the OAuth provider.
-     *
-     * @return RedirectResponse
      */
     public function redirect(string $provider): RedirectResponse
     {
@@ -73,7 +70,8 @@ final class OAuthManager
      * 4. Returns the user with tokens
      *
      * @param  string  $provider  Provider name
-     * @return array{user: \Illuminate\Contracts\Auth\Authenticatable, is_new: bool, oauth_account: array<string, mixed>}
+     * @return array{user: \Illuminate\Contracts\Auth\Authenticatable, is_new: bool, oauth_account: \stdClass|null}
+     *
      * @throws \RuntimeException
      */
     public function handleCallback(string $provider): array
@@ -84,12 +82,12 @@ final class OAuthManager
         // Check if OAuth account already exists
         $oauthAccount = $this->findOAuthAccount(
             $provider,
-            $userData['provider_user_id']
+            $userData['provider_user_id'],
         );
 
         if ($oauthAccount !== null) {
             // Existing OAuth account - get the user
-            $user = $this->getUserModel($oauthAccount['user_id']);
+            $user = $this->getUserModel($oauthAccount->user_id);
 
             if ($user === null) {
                 throw new \RuntimeException('OAuth account exists but user not found. Data inconsistency.');
@@ -131,10 +129,8 @@ final class OAuthManager
 
     /**
      * Find an OAuth account by provider and provider user ID.
-     *
-     * @return array<string, mixed>|null
      */
-    private function findOAuthAccount(string $provider, string $providerUserId): ?array
+    private function findOAuthAccount(string $provider, string $providerUserId): ?\stdClass
     {
         return DB::table('better_auth_oauth_accounts')
             ->where('provider', $provider)
@@ -144,8 +140,6 @@ final class OAuthManager
 
     /**
      * Find a user by ID.
-     *
-     * @return \Illuminate\Contracts\Auth\Authenticatable|null
      */
     private function getUserModel(string $userId): ?\Illuminate\Contracts\Auth\Authenticatable
     {
@@ -156,8 +150,6 @@ final class OAuthManager
 
     /**
      * Find a user by email.
-     *
-     * @return \Illuminate\Contracts\Auth\Authenticatable|null
      */
     private function findUserByEmail(string $email): ?\Illuminate\Contracts\Auth\Authenticatable
     {
@@ -170,12 +162,11 @@ final class OAuthManager
      * Create a new user from OAuth data.
      *
      * @param  array<string, mixed>  $userData
-     * @return \Illuminate\Contracts\Auth\Authenticatable
      */
     private function createUserFromOAuth(array $userData): \Illuminate\Contracts\Auth\Authenticatable
     {
         $userModel = config('betterauth.user_model');
-        $user = new $userModel();
+        $user = new $userModel;
 
         // Generate UUID if configured
         if (config('betterauth.id_strategy') === 'uuid') {
@@ -223,7 +214,7 @@ final class OAuthManager
      */
     public function isProviderAvailable(string $name): bool
     {
-        if (!isset($this->providerConfigs[$name])) {
+        if (! isset($this->providerConfigs[$name])) {
             return false;
         }
 
@@ -237,7 +228,7 @@ final class OAuthManager
      */
     public function getAvailableProviders(): array
     {
-        if (!class_exists(\Laravel\Socialite\SocialiteServiceProvider::class)) {
+        if (! class_exists(\Laravel\Socialite\SocialiteServiceProvider::class)) {
             return [];
         }
 

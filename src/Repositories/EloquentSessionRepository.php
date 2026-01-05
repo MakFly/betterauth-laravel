@@ -20,8 +20,6 @@ final class EloquentSessionRepository
 
     /**
      * Find a session by ID.
-     *
-     * @return object|null
      */
     public function findById(string $id): ?object
     {

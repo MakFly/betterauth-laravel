@@ -28,8 +28,9 @@ final class BetterAuthServiceProvider extends ServiceProvider
     public function __construct($app)
     {
         parent::__construct($app);
-        $this->files = new Filesystem();
+        $this->files = new Filesystem;
     }
+
     /**
      * Register any application services.
      */

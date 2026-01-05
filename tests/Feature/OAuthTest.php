@@ -2,11 +2,10 @@
 
 declare(strict_types=1);
 
-use BetterAuth\Laravel\Facades\BetterAuth;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Config;
+use Illuminate\Support\Facades\DB;
 
-beforeEach(function () {
+beforeEach(function (): void {
     // Mock OAuth configuration
     Config::set('betterauth.oauth', [
         'enabled' => true,
@@ -25,8 +24,8 @@ beforeEach(function () {
     ]);
 });
 
-describe('OAuth Routes', function () {
-    it('redirects to Google OAuth', function () {
+describe('OAuth Routes', function (): void {
+    it('redirects to Google OAuth', function (): void {
         // Use get() instead of getJson() since OAuth redirects (not JSON response)
         $response = $this->get('/auth/oauth/google');
 
@@ -34,21 +33,21 @@ describe('OAuth Routes', function () {
         expect($response->status())->toBeIn([302, 403, 500]);
     });
 
-    it('redirects to GitHub OAuth', function () {
+    it('redirects to GitHub OAuth', function (): void {
         $response = $this->get('/auth/oauth/github');
 
         expect($response->status())->toBeIn([302, 403, 500]);
     });
 
-    it('returns 404 for unsupported provider', function () {
+    it('returns 404 for unsupported provider', function (): void {
         $response = $this->get('/auth/oauth/unsupported');
 
         $response->assertStatus(404);
     });
 });
 
-describe('OAuth Authentication Flow (Google)', function () {
-    it('creates new user on first OAuth login', function () {
+describe('OAuth Authentication Flow (Google)', function (): void {
+    it('creates new user on first OAuth login', function (): void {
         // OAuth callback endpoint exists (requires real OAuth flow to test fully)
         // This test verifies the route is accessible
         $response = $this->get('/auth/oauth/google/callback');
@@ -58,7 +57,7 @@ describe('OAuth Authentication Flow (Google)', function () {
         expect($response->status())->toBeIn([302, 400, 401, 422, 500]);
     });
 
-    it('links OAuth account to existing user', function () {
+    it('links OAuth account to existing user', function (): void {
         // Create existing user
         $user = $this->createTestUser(['email' => 'existing@example.com']);
 
@@ -86,7 +85,7 @@ describe('OAuth Authentication Flow (Google)', function () {
         expect($oauthAccount->provider_user_id)->toBe('google_789');
     });
 
-    it('prevents duplicate OAuth accounts for same provider', function () {
+    it('prevents duplicate OAuth accounts for same provider', function (): void {
         $user = $this->createTestUser();
 
         // Link first Google account
@@ -128,7 +127,7 @@ describe('OAuth Authentication Flow (Google)', function () {
         expect($exception)->toBeTrue();
     });
 
-    it('allows multiple OAuth providers for same user', function () {
+    it('allows multiple OAuth providers for same user', function (): void {
         $user = $this->createTestUser();
 
         // Link Google account
@@ -170,8 +169,8 @@ describe('OAuth Authentication Flow (Google)', function () {
     });
 });
 
-describe('OAuth Account Management', function () {
-    it('stores OAuth tokens correctly', function () {
+describe('OAuth Account Management', function (): void {
+    it('stores OAuth tokens correctly', function (): void {
         DB::table('better_auth_oauth_accounts')->insert([
             'id' => 1,
             'user_id' => $this->createTestUser()->id,
@@ -193,7 +192,7 @@ describe('OAuth Account Management', function () {
         expect($account->raw_data)->toBeJson();
     });
 
-    it('allows manual deletion of OAuth accounts', function () {
+    it('allows manual deletion of OAuth accounts', function (): void {
         $user = $this->createTestUser();
 
         DB::table('better_auth_oauth_accounts')->insert([
@@ -223,8 +222,8 @@ describe('OAuth Account Management', function () {
     });
 });
 
-describe('OAuth Configuration', function () {
-    it('respects enabled flag in config', function () {
+describe('OAuth Configuration', function (): void {
+    it('respects enabled flag in config', function (): void {
         Config::set('betterauth.oauth.enabled', false);
 
         // When OAuth is disabled, routes should return specific response
@@ -234,7 +233,7 @@ describe('OAuth Configuration', function () {
         expect($response->status())->toBeIn([404, 403]);
     });
 
-    it('validates provider configuration', function () {
+    it('validates provider configuration', function (): void {
         $providers = config('betterauth.oauth.providers');
 
         expect($providers)->toHaveKey('google');

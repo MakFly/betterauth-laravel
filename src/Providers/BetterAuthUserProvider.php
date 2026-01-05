@@ -158,7 +158,7 @@ final class BetterAuthUserProvider implements UserProvider
     {
         $class = $this->model;
 
-        return new $class();
+        return new $class;
     }
 
     /**

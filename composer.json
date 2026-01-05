@@ -33,11 +33,12 @@
         "laravel/socialite": "Required for OAuth authentication (Google, GitHub, Facebook, etc.)"
     },
     "require-dev": {
+        "larastan/larastan": "^3.0",
         "laravel/pint": "^1.0",
         "laravel/socialite": "^5.24",
         "orchestra/testbench": "^8.0|^9.0|^10.0",
         "pestphp/pest": "^2.0|^3.0",
-        "phpstan/phpstan": "^1.10"
+        "phpstan/phpstan": "^2.1"
     },
     "autoload": {
         "psr-4": {
@@ -51,8 +52,15 @@
     },
     "scripts": {
         "test": "pest",
+        "test:coverage": "pest --coverage",
         "phpstan": "phpstan analyse",
-        "pint": "pint"
+        "pint": "pint",
+        "pint:test": "pint --test",
+        "ci": [
+            "@pint:test",
+            "@phpstan",
+            "@test"
+        ]
     },
     "extra": {
         "laravel": {

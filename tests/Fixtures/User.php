@@ -8,7 +8,7 @@ use BetterAuth\Laravel\Models\Traits\HasBetterAuth;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Database\Eloquent\Model;
 
-class User extends Model implements Authenticatable
+final class User extends Model implements Authenticatable
 {
     use HasBetterAuth;
 

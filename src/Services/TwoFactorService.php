@@ -19,7 +19,9 @@ use Illuminate\Support\Str;
 final class TwoFactorService
 {
     private const SECRET_LENGTH = 20;
+
     private const RECOVERY_CODE_COUNT = 8;
+
     private const RECOVERY_CODE_LENGTH = 10;
 
     public function __construct(
@@ -48,7 +50,7 @@ final class TwoFactorService
                 'verified_at' => null,
                 'created_at' => now(),
                 'updated_at' => now(),
-            ]
+            ],
         );
 
         $uri = $this->buildTotpUri($secret, $email, $issuer);
@@ -92,7 +94,7 @@ final class TwoFactorService
                 'updated_at' => now(),
             ]);
 
-        Event::dispatch(new TwoFactorEnabled($user));
+        Event::dispatch(new TwoFactorEnabled($user, $recoveryCodes));
 
         return [
             'enabled' => true,
@@ -259,7 +261,7 @@ final class TwoFactorService
         $period = 30;
 
         for ($offset = -1; $offset <= 1; $offset++) {
-            $timeSlice = floor(($timestamp + ($offset * $period)) / $period);
+            $timeSlice = (int) floor(($timestamp + ($offset * $period)) / $period);
             $expectedCode = $this->generateTotpCode($secret, $timeSlice);
 
             if (hash_equals($expectedCode, $code)) {

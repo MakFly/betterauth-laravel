@@ -56,7 +56,7 @@ function createUser(array $attributes = []): \Illuminate\Contracts\Auth\Authenti
 
 function createAuthenticatedRequest(string $token): \Illuminate\Http\Request
 {
-    $request = new \Illuminate\Http\Request();
+    $request = new \Illuminate\Http\Request;
     $request->headers->set('Authorization', "Bearer {$token}");
 
     return $request;

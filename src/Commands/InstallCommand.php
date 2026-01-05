@@ -7,7 +7,6 @@ namespace BetterAuth\Laravel\Commands;
 use BetterAuth\Laravel\Services\ConfigurationBuilder;
 use Illuminate\Console\Command;
 use Illuminate\Filesystem\Filesystem;
-use Illuminate\Support\Str;
 
 use function Laravel\Prompts\confirm;
 use function Laravel\Prompts\multiselect;
@@ -47,6 +46,7 @@ final class InstallCommand extends Command
     protected $description = 'Install BetterAuth scaffolding';
 
     private Filesystem $files;
+
     private ConfigurationBuilder $configBuilder;
 
     public function __construct(Filesystem $files, ConfigurationBuilder $configBuilder)
@@ -70,12 +70,12 @@ final class InstallCommand extends Command
         $includeOptionalFields = ! $this->option('minimal') && $this->confirmOptionalFields();
         $features = $this->selectFeatures();
 
-        $this->components->info("Configuration:");
+        $this->components->info('Configuration:');
         $this->components->bulletList([
             "Mode: {$mode}",
             "ID Strategy: {$idStrategy}",
-            "Optional Fields: ".($includeOptionalFields ? 'Yes' : 'No'),
-            "Features: ".implode(', ', $features ?: ['Basic Auth']),
+            'Optional Fields: '.($includeOptionalFields ? 'Yes' : 'No'),
+            'Features: '.implode(', ', $features ?: ['Basic Auth']),
         ]);
         $this->newLine();
 
@@ -205,7 +205,7 @@ final class InstallCommand extends Command
 
     private function publishConfig(): void
     {
-        $this->components->task('Publishing configuration', function () {
+        $this->components->task('Publishing configuration', function (): void {
             $this->call('vendor:publish', [
                 '--tag' => 'betterauth-config',
                 '--force' => $this->option('force'),
@@ -215,7 +215,7 @@ final class InstallCommand extends Command
 
     private function generateMigrations(string $idStrategy, bool $includeOptionalFields): void
     {
-        $this->components->task('Generating migrations', function () use ($idStrategy, $includeOptionalFields) {
+        $this->components->task('Generating migrations', function () use ($idStrategy, $includeOptionalFields): void {
             $timestamp = date('Y_m_d_His');
 
             // Only generate users migration if not using default Laravel users table
@@ -274,20 +274,20 @@ final class InstallCommand extends Command
         $content = str_replace(
             '$table->id();',
             "\$table->uuid('id')->primary();",
-            $content
+            $content,
         );
 
         $content = str_replace(
             "->table('users', function (Blueprint \$table) {\n                \$table->id();",
             "->table('users', function (Blueprint \$table) {\n                \$table->uuid('id')->primary();",
-            $content
+            $content,
         );
 
         // 2. Make name nullable (if it exists in default Laravel migration)
         $content = preg_replace(
             "/\$table->string\('name'\);/",
             "\$table->string('name')->nullable();",
-            $content
+            $content,
         );
 
         // 3. Add BetterAuth fields after email_verified_at
@@ -296,7 +296,7 @@ final class InstallCommand extends Command
         $content = preg_replace(
             '/(\$table->timestamp\(\'email_verified_at\'\)->nullable\(\);)/',
             "$1\n            \$table->json('roles')->default('[\"ROLE_USER\"]');\n            \$table->json('metadata')->nullable();{$avatarField}",
-            $content
+            $content,
         );
 
         $this->files->put($migrationPath, $content);
@@ -307,7 +307,7 @@ final class InstallCommand extends Command
         $idColumn = match ($idStrategy) {
             'uuid' => "\$table->uuid('id')->primary();",
             'ulid' => "\$table->ulid('id')->primary();",
-            default => "\$table->id();",
+            default => '$table->id();',
         };
 
         $optionalFields = $includeOptionalFields ? "
@@ -390,7 +390,7 @@ PHP;
         $idColumn = match ($idStrategy) {
             'uuid' => "\$table->uuid('id')->primary();",
             'ulid' => "\$table->ulid('id')->primary();",
-            default => "\$table->id();",
+            default => '$table->id();',
         };
 
         $userIdColumn = match ($idStrategy) {
@@ -445,7 +445,7 @@ PHP;
             return;
         }
 
-        $this->components->task('Updating User model', function () use ($userModelPath, $includeOptionalFields) {
+        $this->components->task('Updating User model', function () use ($userModelPath, $includeOptionalFields): void {
             $content = $this->files->get($userModelPath);
 
             // Add HasBetterAuth trait if not present
@@ -454,14 +454,14 @@ PHP;
                 $content = str_replace(
                     'use Illuminate\Foundation\Auth\User as Authenticatable;',
                     "use Illuminate\\Foundation\\Auth\\User as Authenticatable;\nuse BetterAuth\\Laravel\\Models\\Traits\\HasBetterAuth;",
-                    $content
+                    $content,
                 );
 
                 // Add trait usage
                 $content = preg_replace(
                     '/(class User extends Authenticatable\s*\{)/s',
                     "$1\n    use HasBetterAuth;\n",
-                    $content
+                    $content,
                 );
 
                 $this->files->put($userModelPath, $content);
@@ -476,7 +476,7 @@ PHP;
                 $content = preg_replace(
                     '/protected \$fillable = \[[^\]]*\];/',
                     "protected \$fillable = {$fillable};",
-                    $content
+                    $content,
                 );
             }
 
@@ -485,7 +485,7 @@ PHP;
                 $content = preg_replace(
                     "/'password'\s*=>\s*'hashed',?\s*/",
                     '',
-                    $content
+                    $content,
                 );
             }
 
@@ -501,7 +501,7 @@ PHP;
             return;
         }
 
-        $this->components->task('Updating auth configuration', function () use ($authConfigPath) {
+        $this->components->task('Updating auth configuration', function () use ($authConfigPath): void {
             $content = $this->files->get($authConfigPath);
 
             // Add betterauth guard if not present
@@ -518,7 +518,7 @@ PHP;
                 $content = preg_replace(
                     "/'guards'\s*=>\s*\[\s*'web'\s*=>\s*\[/",
                     "'guards' => [\n{$guardConfig}\n\n        'web' => [",
-                    $content
+                    $content,
                 );
 
                 // Add betterauth provider if not present
@@ -533,7 +533,7 @@ PHP;
                 $content = preg_replace(
                     "/'providers'\s*=>\s*\[\s*'users'\s*=>\s*\[/",
                     "'providers' => [\n{$providerConfig}\n\n        'users' => [",
-                    $content
+                    $content,
                 );
 
                 $this->files->put($authConfigPath, $content);
@@ -558,7 +558,7 @@ PHP;
             return;
         }
 
-        $this->components->task('Configuring BetterAuth environment variables', function () use ($envPath, $content) {
+        $this->components->task('Configuring BetterAuth environment variables', function () use ($envPath, $content): void {
             $secret = bin2hex(random_bytes(32));
 
             // Add BetterAuth configuration to .env
@@ -627,7 +627,7 @@ ENV;
                 ['POST', '/auth/refresh', 'Refresh access token'],
                 ['POST', '/auth/logout', 'Logout (protected)'],
                 ['POST', '/auth/revoke-all', 'Revoke all tokens (protected)'],
-            ]
+            ],
         );
     }
 
@@ -669,16 +669,16 @@ ENV;
             }
         }
 
-        $this->components->task('Configuring bootstrap/app.php', function () use ($bootstrapPath, $content) {
+        $this->components->task('Configuring bootstrap/app.php', function () use ($bootstrapPath, $content): void {
             // Create backup
-            $backupPath = $bootstrapPath . '.betterauth.bak';
+            $backupPath = $bootstrapPath.'.betterauth.bak';
             $this->files->copy($bootstrapPath, $backupPath);
 
             // Add API routes configuration
             $content = str_replace(
                 '->withRouting(',
                 "->withRouting(\n            api: __DIR__.'/../routes/api.php',",
-                $content
+                $content,
             );
 
             $this->files->put($bootstrapPath, $content);
@@ -698,7 +698,7 @@ ENV;
                 return;
             }
 
-            $this->components->task('Adding BetterAuth to routes/api.php', function () use ($apiPath, $content) {
+            $this->components->task('Adding BetterAuth to routes/api.php', function () use ($apiPath, $content): void {
                 // Add BetterAuth routes at the beginning
                 $betterauthRoutes = $this->getBetterAuthRoutes();
 
@@ -706,10 +706,10 @@ ENV;
 
 use Illuminate\Support\Facades\Route;
 
-' . $betterauthRoutes . $content);
+'.$betterauthRoutes.$content);
             });
         } else {
-            $this->components->task('Creating routes/api.php', function () use ($apiPath) {
+            $this->components->task('Creating routes/api.php', function () use ($apiPath): void {
                 $betterauthRoutes = $this->getBetterAuthRoutes();
                 $stub = <<<PHP
 <?php
@@ -766,8 +766,8 @@ PHP;
 
     private function publishControllers(): void
     {
-        $this->components->task('Publishing controllers', function () {
-            $stubPath = dirname(__DIR__, 2) . '/stubs/controllers/AuthController.php.stub';
+        $this->components->task('Publishing controllers', function (): void {
+            $stubPath = dirname(__DIR__, 2).'/stubs/controllers/AuthController.php.stub';
             $targetPath = app_path('Http/Controllers/Auth/AuthController.php');
 
             // Create directory if it doesn't exist
@@ -786,7 +786,7 @@ PHP;
 
     private function generateTests(): void
     {
-        $this->components->task('Generating tests', function () {
+        $this->components->task('Generating tests', function (): void {
             // Detect test framework (Pest or PHPUnit)
             $composerPath = base_path('composer.json');
             $usesPest = false;
@@ -798,7 +798,7 @@ PHP;
             }
 
             $stubFile = $usesPest ? 'BetterAuthTest.pest.stub' : 'BetterAuthTest.php.stub';
-            $stubPath = dirname(__DIR__, 2) . "/stubs/tests/Feature/{$stubFile}";
+            $stubPath = dirname(__DIR__, 2)."/stubs/tests/Feature/{$stubFile}";
             $targetPath = base_path('tests/Feature/BetterAuthTest.php');
 
             // Copy the stub

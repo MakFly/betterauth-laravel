@@ -104,7 +104,7 @@ final class EloquentRefreshTokenRepository implements RefreshTokenRepositoryInte
     {
         $hashedToken = hash('sha256', $token);
 
-        return DB::transaction(function () use ($hashedToken, $token) {
+        return DB::transaction(function () use ($hashedToken) {
             $record = DB::table($this->table)
                 ->where('token', $hashedToken)
                 ->where('revoked', false)
@@ -129,7 +129,8 @@ final class EloquentRefreshTokenRepository implements RefreshTokenRepositoryInte
      */
     private function toEntity(object $record): RefreshToken
     {
-        return new class($record) extends RefreshToken {
+        return new class($record) extends RefreshToken
+        {
             private object $record;
 
             public function __construct(object $record)

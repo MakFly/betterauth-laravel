@@ -66,7 +66,7 @@ final class MagicLinkController extends Controller
 
         $result = $this->magicLink->verify(
             $validated['token'],
-            $email
+            $email,
         );
 
         if ($result === null) {
@@ -126,7 +126,7 @@ final class MagicLinkController extends Controller
 
         $isValid = $this->magicLink->isValid(
             $validated['token'],
-            $validated['email']
+            $validated['email'],
         );
 
         return response()->json([

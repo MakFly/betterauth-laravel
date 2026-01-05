@@ -2,7 +2,6 @@
 
 declare(strict_types=1);
 
-use BetterAuth\Laravel\Facades\BetterAuth;
 use BetterAuth\Laravel\Events\MagicLinkSent;
 use BetterAuth\Laravel\Events\MagicLinkVerified;
 use BetterAuth\Laravel\Services\MagicLinkService;
@@ -10,8 +9,8 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Mail;
 
-describe('Magic Link', function () {
-    it('sends magic link to existing user', function () {
+describe('Magic Link', function (): void {
+    it('sends magic link to existing user', function (): void {
         Event::fake([MagicLinkSent::class]);
         Mail::fake();
 
@@ -38,7 +37,7 @@ describe('Magic Link', function () {
         Event::assertDispatched(MagicLinkSent::class);
     });
 
-    it('sends magic link to non-existing user (prevents enumeration)', function () {
+    it('sends magic link to non-existing user (prevents enumeration)', function (): void {
         Event::fake([MagicLinkSent::class]);
         Mail::fake();
 
@@ -60,7 +59,7 @@ describe('Magic Link', function () {
         expect($token)->not->toBeNull();
     });
 
-    it('validates email format', function () {
+    it('validates email format', function (): void {
         $response = $this->postJson('/auth/magic-link', [
             'email' => 'not-an-email',
         ]);
@@ -69,7 +68,7 @@ describe('Magic Link', function () {
             ->assertJsonValidationErrors(['email']);
     });
 
-    it('verifies magic link and authenticates existing user', function () {
+    it('verifies magic link and authenticates existing user', function (): void {
         Event::fake([MagicLinkVerified::class]);
 
         // Create user
@@ -88,7 +87,7 @@ describe('Magic Link', function () {
             'created_at' => now(),
         ]);
 
-        $response = $this->getJson('/auth/magic-link/verify?token=' . $token);
+        $response = $this->getJson('/auth/magic-link/verify?token='.$token);
 
         $response->assertStatus(200)
             ->assertJsonStructure([
@@ -116,7 +115,7 @@ describe('Magic Link', function () {
         Event::assertDispatched(MagicLinkVerified::class);
     });
 
-    it('auto-registers new user on magic link verification', function () {
+    it('auto-registers new user on magic link verification', function (): void {
         Event::fake([MagicLinkVerified::class]);
 
         // Generate magic link token for non-existing user
@@ -132,7 +131,7 @@ describe('Magic Link', function () {
             'created_at' => now(),
         ]);
 
-        $response = $this->getJson('/auth/magic-link/verify?token=' . $token);
+        $response = $this->getJson('/auth/magic-link/verify?token='.$token);
 
         $response->assertStatus(201)
             ->assertJson([
@@ -144,7 +143,7 @@ describe('Magic Link', function () {
         expect($user)->not->toBeNull();
     });
 
-    it('fails verification with expired token', function () {
+    it('fails verification with expired token', function (): void {
         $token = bin2hex(random_bytes(32));
         $hashedToken = hash('sha256', $token);
 
@@ -157,13 +156,13 @@ describe('Magic Link', function () {
             'created_at' => now(),
         ]);
 
-        $response = $this->getJson('/auth/magic-link/verify?token=' . $token);
+        $response = $this->getJson('/auth/magic-link/verify?token='.$token);
 
         $response->assertStatus(422)
             ->assertJsonValidationErrors(['token']);
     });
 
-    it('fails verification with already used token', function () {
+    it('fails verification with already used token', function (): void {
         $token = bin2hex(random_bytes(32));
         $hashedToken = hash('sha256', $token);
 
@@ -176,20 +175,20 @@ describe('Magic Link', function () {
             'created_at' => now(),
         ]);
 
-        $response = $this->getJson('/auth/magic-link/verify?token=' . $token);
+        $response = $this->getJson('/auth/magic-link/verify?token='.$token);
 
         $response->assertStatus(422)
             ->assertJsonValidationErrors(['token']);
     });
 
-    it('fails verification with invalid token', function () {
+    it('fails verification with invalid token', function (): void {
         $response = $this->getJson('/auth/magic-link/verify?token=invalidtoken123');
 
         $response->assertStatus(422)
             ->assertJsonValidationErrors(['token']);
     });
 
-    it('checks magic link validity', function () {
+    it('checks magic link validity', function (): void {
         $token = bin2hex(random_bytes(32));
         $hashedToken = hash('sha256', $token);
 
@@ -213,7 +212,7 @@ describe('Magic Link', function () {
             ]);
     });
 
-    it('revokes old tokens when sending new magic link', function () {
+    it('revokes old tokens when sending new magic link', function (): void {
         // Send first magic link
         $this->postJson('/auth/magic-link', [
             'email' => 'revoke@example.com',
@@ -246,7 +245,7 @@ describe('Magic Link', function () {
         expect($activeTokens)->toBe(1);
     });
 
-    it('allows email parameter in verify for backward compatibility', function () {
+    it('allows email parameter in verify for backward compatibility', function (): void {
         $this->createTestUser(['email' => 'compat@example.com']);
 
         $token = bin2hex(random_bytes(32));
@@ -262,7 +261,7 @@ describe('Magic Link', function () {
         ]);
 
         // Verify with both token and email
-        $response = $this->getJson('/auth/magic-link/verify?token=' . $token . '&email=compat@example.com');
+        $response = $this->getJson('/auth/magic-link/verify?token='.$token.'&email=compat@example.com');
 
         $response->assertStatus(200)
             ->assertJson([
@@ -271,8 +270,8 @@ describe('Magic Link', function () {
     });
 });
 
-describe('Magic Link Service', function () {
-    it('generates secure tokens', function () {
+describe('Magic Link Service', function (): void {
+    it('generates secure tokens', function (): void {
         $service = app(MagicLinkService::class);
 
         $reflection = new \ReflectionClass($service);
@@ -285,7 +284,7 @@ describe('Magic Link Service', function () {
         expect(ctype_xdigit($token))->toBeTrue();
     });
 
-    it('correctly hashes tokens', function () {
+    it('correctly hashes tokens', function (): void {
         $rawToken = bin2hex(random_bytes(32));
         $hashedToken = hash('sha256', $rawToken);
 
@@ -293,7 +292,7 @@ describe('Magic Link Service', function () {
         expect($hashedToken)->not->toBe($rawToken);
     });
 
-    it('gets email from token', function () {
+    it('gets email from token', function (): void {
         $service = app(MagicLinkService::class);
 
         $rawToken = bin2hex(random_bytes(32));
@@ -313,7 +312,7 @@ describe('Magic Link Service', function () {
         expect($email)->toBe('getemail@example.com');
     });
 
-    it('returns null for non-existent token', function () {
+    it('returns null for non-existent token', function (): void {
         $service = app(MagicLinkService::class);
 
         $email = $service->getEmailFromToken('nonexistenttoken');

@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace BetterAuth\Laravel\OAuth;
 
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Support\Arr;
 use Laravel\Socialite\Facades\Socialite;
 use Laravel\Socialite\Two\InvalidStateException;
 
@@ -41,11 +40,11 @@ final class SocialiteOAuthProvider implements OAuthProviderInterface
 
         $driver = Socialite::driver($this->name);
 
-        if (!empty($scopes)) {
+        if (! empty($scopes)) {
             $driver = $driver->scopes($scopes);
         }
 
-        if (!empty($with)) {
+        if (! empty($with)) {
             foreach ($with as $key => $value) {
                 $driver = $driver->with([$key => $value]);
             }
@@ -58,6 +57,7 @@ final class SocialiteOAuthProvider implements OAuthProviderInterface
      * Handle the callback from the OAuth provider.
      *
      * @return array{provider_user_id: string, email: string, name: string, avatar: string|null, raw: array<string, mixed>}
+     *
      * @throws \RuntimeException
      */
     public function callback(): array
@@ -99,11 +99,11 @@ final class SocialiteOAuthProvider implements OAuthProviderInterface
      */
     private function validateConfig(): void
     {
-        if (!isset($this->config['client_id']) || !isset($this->config['client_secret'])) {
+        if (! isset($this->config['client_id']) || ! isset($this->config['client_secret'])) {
             throw new \InvalidArgumentException("OAuth provider '{$this->name}' is not configured. Set CLIENT_ID and CLIENT_SECRET.");
         }
 
-        if (!isset($this->config['redirect_uri'])) {
+        if (! isset($this->config['redirect_uri'])) {
             throw new \InvalidArgumentException("OAuth provider '{$this->name}' missing redirect_uri configuration.");
         }
     }

@@ -46,7 +46,7 @@ final class EloquentUserRepository implements UserRepositoryInterface
         // This requires a join with account_links table
         // For now, we'll use a simple approach assuming the model has the relationship
         $model = $this->query()
-            ->whereHas('accountLinks', function ($query) use ($provider, $providerId) {
+            ->whereHas('accountLinks', function ($query) use ($provider, $providerId): void {
                 $query->where('provider', $provider)
                     ->where('provider_user_id', $providerId);
             })
@@ -57,7 +57,7 @@ final class EloquentUserRepository implements UserRepositoryInterface
 
     public function create(array $data): User
     {
-        $model = new $this->modelClass();
+        $model = new $this->modelClass;
 
         // Generate ID if using UUID strategy
         if (! isset($data['id']) && $this->usesUuid()) {
@@ -106,7 +106,8 @@ final class EloquentUserRepository implements UserRepositoryInterface
     private function toEntity(Model $model): User
     {
         // Create anonymous User implementation since the Core User is abstract
-        return new class($model) extends User {
+        return new class($model) extends User
+        {
             private Model $model;
 
             public function __construct(Model $model)

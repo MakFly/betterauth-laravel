@@ -28,6 +28,7 @@ final class CleanupCommand extends Command
     protected $description = 'Rollback BetterAuth installation changes';
 
     private Filesystem $files;
+
     private ConfigurationBuilder $configBuilder;
 
     public function __construct(Filesystem $files, ConfigurationBuilder $configBuilder)
@@ -42,6 +43,7 @@ final class CleanupCommand extends Command
         // Warn user before proceeding
         if (! $this->confirm('This will remove BetterAuth files and modifications. Continue?', true)) {
             $this->components->warn('Cleanup cancelled.');
+
             return self::SUCCESS;
         }
 
@@ -79,7 +81,7 @@ final class CleanupCommand extends Command
      */
     private function cleanupConfig(): void
     {
-        $this->components->task('Removing configuration', function () {
+        $this->components->task('Removing configuration', function (): void {
             // Remove config file
             $configPath = config_path('betterauth.php');
             if ($this->files->exists($configPath)) {
@@ -99,7 +101,7 @@ final class CleanupCommand extends Command
      */
     private function cleanupRoutes(): void
     {
-        $this->components->task('Removing routes configuration', function () {
+        $this->components->task('Removing routes configuration', function (): void {
             $laravelVersion = $this->configBuilder->detectLaravelVersion();
 
             // Remove API routes from bootstrap/app.php (Laravel 12)
@@ -117,7 +119,7 @@ final class CleanupCommand extends Command
      */
     private function cleanupControllers(): void
     {
-        $this->components->task('Removing generated controllers', function () {
+        $this->components->task('Removing generated controllers', function (): void {
             $controllers = [
                 app_path('Http/Controllers/Auth/AuthController.php'),
             ];
@@ -125,7 +127,7 @@ final class CleanupCommand extends Command
             foreach ($controllers as $controller) {
                 if ($this->files->exists($controller)) {
                     // Backup before deleting
-                    $backupPath = $controller . '.betterauth.bak';
+                    $backupPath = $controller.'.betterauth.bak';
                     $this->files->copy($controller, $backupPath);
                     $this->files->delete($controller);
                 }
@@ -138,7 +140,7 @@ final class CleanupCommand extends Command
      */
     private function cleanupMigrations(): void
     {
-        $this->components->task('Removing migrations', function () {
+        $this->components->task('Removing migrations', function (): void {
             $migrations = glob(database_path('migrations/*_better_auth_*'));
 
             if (is_array($migrations)) {
@@ -156,7 +158,7 @@ final class CleanupCommand extends Command
      */
     private function cleanupTests(): void
     {
-        $this->components->task('Removing test files', function () {
+        $this->components->task('Removing test files', function (): void {
             $testFiles = [
                 base_path('tests/Feature/BetterAuthTest.php'),
             ];
@@ -187,7 +189,7 @@ final class CleanupCommand extends Command
             "/\s*'betterauth'\s*=>\s*\[[^\]]*\],?\n?/",
             '',
             $content,
-            1
+            1,
         );
 
         // Remove betterauth provider
@@ -195,7 +197,7 @@ final class CleanupCommand extends Command
             "/\s*'betterauth'\s*=>\s*\[[^\]]*\],?\n?/",
             '',
             $content,
-            1
+            1,
         );
 
         $this->files->put($authConfig, $content);
@@ -221,7 +223,7 @@ final class CleanupCommand extends Command
                 "/\s*api:\s*__DIR__\.'\/\.\.\/routes\/api\.php',?\n?/",
                 '',
                 $content,
-                1
+                1,
             );
 
             $this->files->put($bootstrapPath, $content);
@@ -246,7 +248,7 @@ final class CleanupCommand extends Command
             '/\/\/ BetterAuth routes.*?\n.*?require.*?betterauth.*?\.php\;?\n\n?/s',
             '',
             $content,
-            1
+            1,
         );
 
         $this->files->put($apiPath, $content);

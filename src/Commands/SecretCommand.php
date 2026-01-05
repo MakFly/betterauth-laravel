@@ -58,7 +58,7 @@ final class SecretCommand extends Command
             $content = preg_replace(
                 '/BETTER_AUTH_SECRET=.*/',
                 "BETTER_AUTH_SECRET={$secret}",
-                $content
+                $content,
             );
         } else {
             // Append new

@@ -52,7 +52,7 @@ final class BetterAuthManager
         $hashedPassword = $this->passwordHasher->hash($data['password']);
 
         /** @var Model&Authenticatable $user */
-        $user = new $this->userModel();
+        $user = new $this->userModel;
 
         // Generate UUID if configured
         if ($this->usesUuid()) {

@@ -16,8 +16,6 @@ interface OAuthProviderInterface
 {
     /**
      * Redirect the user to the provider's authentication page.
-     *
-     * @return RedirectResponse
      */
     public function redirect(): RedirectResponse;
 
@@ -32,14 +30,13 @@ interface OAuthProviderInterface
      * - raw: Raw provider data
      *
      * @return array{provider_user_id: string, email: string, name: string, avatar: string|null, raw: array<string, mixed>}
+     *
      * @throws \RuntimeException If the callback fails or user cannot be retrieved
      */
     public function callback(): array;
 
     /**
      * Get the provider name (e.g., 'google', 'github', 'facebook').
-     *
-     * @return string
      */
     public function getName(): string;
 }

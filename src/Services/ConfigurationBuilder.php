@@ -16,6 +16,7 @@ use Illuminate\Support\Facades\File;
 final class ConfigurationBuilder
 {
     private Filesystem $files;
+
     private array $configuration = [];
 
     public function __construct(Filesystem $files)

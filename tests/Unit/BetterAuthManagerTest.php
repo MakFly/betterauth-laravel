@@ -5,18 +5,18 @@ declare(strict_types=1);
 use BetterAuth\Laravel\Facades\BetterAuth;
 use BetterAuth\Laravel\Services\BetterAuthManager;
 
-beforeEach(function () {
+beforeEach(function (): void {
     $this->artisan('migrate', ['--database' => 'testing']);
 });
 
-describe('BetterAuth Facade', function () {
-    it('resolves the manager instance', function () {
+describe('BetterAuth Facade', function (): void {
+    it('resolves the manager instance', function (): void {
         $manager = app(BetterAuthManager::class);
 
         expect($manager)->toBeInstanceOf(BetterAuthManager::class);
     });
 
-    it('signs up a user', function () {
+    it('signs up a user', function (): void {
         $result = BetterAuth::signUp([
             'email' => 'facade@example.com',
             'password' => 'securepassword123',
@@ -32,7 +32,7 @@ describe('BetterAuth Facade', function () {
         expect($result['expires_in'])->toBe(3600);
     });
 
-    it('signs in a user', function () {
+    it('signs in a user', function (): void {
         BetterAuth::signUp([
             'email' => 'signin@example.com',
             'password' => 'password123',
@@ -45,7 +45,7 @@ describe('BetterAuth Facade', function () {
             ->toHaveKeys(['user', 'access_token', 'refresh_token']);
     });
 
-    it('verifies a valid token', function () {
+    it('verifies a valid token', function (): void {
         $result = BetterAuth::signUp([
             'email' => 'verify@example.com',
             'password' => 'password123',
@@ -61,7 +61,7 @@ describe('BetterAuth Facade', function () {
         expect($payload['email'])->toBe('verify@example.com');
     });
 
-    it('fails verification for invalid token', function () {
+    it('fails verification for invalid token', function (): void {
         $threw = false;
         try {
             BetterAuth::verify('invalid.token.here');
@@ -71,7 +71,7 @@ describe('BetterAuth Facade', function () {
         expect($threw)->toBeTrue();
     });
 
-    it('checks email existence', function () {
+    it('checks email existence', function (): void {
         expect(BetterAuth::emailExists('notexist@example.com'))->toBeFalse();
 
         BetterAuth::signUp([
@@ -82,7 +82,7 @@ describe('BetterAuth Facade', function () {
         expect(BetterAuth::emailExists('exists@example.com'))->toBeTrue();
     });
 
-    it('gets user by id', function () {
+    it('gets user by id', function (): void {
         $result = BetterAuth::signUp([
             'email' => 'byid@example.com',
             'password' => 'password123',
@@ -95,7 +95,7 @@ describe('BetterAuth Facade', function () {
         expect($user['email'])->toBe('byid@example.com');
     });
 
-    it('gets user by email', function () {
+    it('gets user by email', function (): void {
         BetterAuth::signUp([
             'email' => 'byemail@example.com',
             'password' => 'password123',
@@ -107,14 +107,14 @@ describe('BetterAuth Facade', function () {
         expect($user['email'])->toBe('byemail@example.com');
     });
 
-    it('returns null for non-existent user', function () {
+    it('returns null for non-existent user', function (): void {
         expect(BetterAuth::getUserByEmail('nonexistent@example.com'))->toBeNull();
         expect(BetterAuth::getUserById('nonexistent-id'))->toBeNull();
     });
 });
 
-describe('Password Hashing', function () {
-    it('hashes password with argon2id', function () {
+describe('Password Hashing', function (): void {
+    it('hashes password with argon2id', function (): void {
         $hash = BetterAuth::hashPassword('mypassword');
 
         expect($hash)
@@ -122,7 +122,7 @@ describe('Password Hashing', function () {
             ->toStartWith('$argon2id$');
     });
 
-    it('verifies correct password', function () {
+    it('verifies correct password', function (): void {
         $hash = BetterAuth::hashPassword('mypassword');
 
         expect(BetterAuth::verifyPassword('mypassword', $hash))->toBeTrue();
@@ -130,8 +130,8 @@ describe('Password Hashing', function () {
     });
 });
 
-describe('Token Refresh', function () {
-    it('refreshes tokens', function () {
+describe('Token Refresh', function (): void {
+    it('refreshes tokens', function (): void {
         $result = BetterAuth::signUp([
             'email' => 'refreshtest@example.com',
             'password' => 'password123',
@@ -148,7 +148,7 @@ describe('Token Refresh', function () {
             ->toThrow(\BetterAuth\Core\Exceptions\InvalidTokenException::class);
     });
 
-    it('signs out and revokes token', function () {
+    it('signs out and revokes token', function (): void {
         $result = BetterAuth::signUp([
             'email' => 'signout@example.com',
             'password' => 'password123',
@@ -162,8 +162,8 @@ describe('Token Refresh', function () {
     });
 });
 
-describe('Config Access', function () {
-    it('returns configuration array', function () {
+describe('Config Access', function (): void {
+    it('returns configuration array', function (): void {
         $config = BetterAuth::getConfig();
 
         expect($config)
@@ -172,7 +172,7 @@ describe('Config Access', function () {
             ->toHaveKey('secret');
     });
 
-    it('returns token service', function () {
+    it('returns token service', function (): void {
         $tokenService = BetterAuth::getTokenService();
 
         expect($tokenService)->toBeInstanceOf(\BetterAuth\Core\Interfaces\TokenSignerInterface::class);

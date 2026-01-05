@@ -69,7 +69,7 @@ final class AuthController extends Controller
         try {
             $result = $this->auth->signIn(
                 $validated['email'],
-                $validated['password']
+                $validated['password'],
             );
 
             return response()->json([
@@ -205,7 +205,7 @@ final class AuthController extends Controller
             $updated = $this->auth->updatePassword(
                 $userId,
                 $validated['current_password'],
-                $validated['password']
+                $validated['password'],
             );
 
             if (! $updated) {
@@ -232,12 +232,13 @@ final class AuthController extends Controller
      */
     public function oauthRedirect(string $provider): \Illuminate\Http\RedirectResponse
     {
-        if (!config('betterauth.oauth.enabled')) {
+        if (! config('betterauth.oauth.enabled')) {
             abort(403, 'OAuth authentication is not enabled.');
         }
 
         try {
             $oauthManager = app(\BetterAuth\Laravel\OAuth\OAuthManager::class);
+
             return $oauthManager->redirect($provider);
         } catch (\InvalidArgumentException $e) {
             abort(404, $e->getMessage());
@@ -253,7 +254,7 @@ final class AuthController extends Controller
      */
     public function oauthCallback(Request $request, string $provider): JsonResponse
     {
-        if (!config('betterauth.oauth.enabled')) {
+        if (! config('betterauth.oauth.enabled')) {
             abort(403, 'OAuth authentication is not enabled.');
         }
 

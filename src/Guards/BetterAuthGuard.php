@@ -27,10 +27,15 @@ final class BetterAuthGuard implements Guard
     use GuardHelpers;
 
     private ?array $decodedToken = null;
+
     private readonly string $name;
+
     private readonly Request $request;
+
     private readonly TokenSignerInterface $tokenService;
+
     private readonly BetterAuthManager $authManager;
+
     private readonly ?Dispatcher $events;
 
     public function __construct(
@@ -114,7 +119,7 @@ final class BetterAuthGuard implements Guard
         try {
             $result = $this->authManager->signIn(
                 $credentials['email'],
-                $credentials['password']
+                $credentials['password'],
             );
 
             return isset($result['access_token']);

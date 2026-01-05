@@ -2,18 +2,18 @@
 
 declare(strict_types=1);
 
-use BetterAuth\Laravel\Facades\BetterAuth;
-use Illuminate\Support\Facades\Event;
-use BetterAuth\Laravel\Events\UserRegistered;
 use BetterAuth\Laravel\Events\UserLoggedIn;
 use BetterAuth\Laravel\Events\UserLoggedOut;
+use BetterAuth\Laravel\Events\UserRegistered;
+use BetterAuth\Laravel\Facades\BetterAuth;
+use Illuminate\Support\Facades\Event;
 
-beforeEach(function () {
+beforeEach(function (): void {
     $this->artisan('migrate', ['--database' => 'testing']);
 });
 
-describe('Registration', function () {
-    it('registers a new user successfully', function () {
+describe('Registration', function (): void {
+    it('registers a new user successfully', function (): void {
         Event::fake([UserRegistered::class]);
 
         $response = $this->postJson('/auth/register', [
@@ -39,7 +39,7 @@ describe('Registration', function () {
         Event::assertDispatched(UserRegistered::class);
     });
 
-    it('fails registration with duplicate email', function () {
+    it('fails registration with duplicate email', function (): void {
         $this->createTestUser(['email' => 'existing@example.com']);
 
         $response = $this->postJson('/auth/register', [
@@ -51,7 +51,7 @@ describe('Registration', function () {
             ->assertJsonValidationErrors(['email']);
     });
 
-    it('fails registration with invalid email', function () {
+    it('fails registration with invalid email', function (): void {
         $response = $this->postJson('/auth/register', [
             'email' => 'not-an-email',
             'password' => 'securepassword123',
@@ -61,7 +61,7 @@ describe('Registration', function () {
             ->assertJsonValidationErrors(['email']);
     });
 
-    it('fails registration with short password', function () {
+    it('fails registration with short password', function (): void {
         $response = $this->postJson('/auth/register', [
             'email' => 'test@example.com',
             'password' => 'short',
@@ -72,8 +72,8 @@ describe('Registration', function () {
     });
 });
 
-describe('Login', function () {
-    it('logs in with valid credentials', function () {
+describe('Login', function (): void {
+    it('logs in with valid credentials', function (): void {
         Event::fake([UserLoggedIn::class]);
 
         $this->createTestUser([
@@ -101,7 +101,7 @@ describe('Login', function () {
         Event::assertDispatched(UserLoggedIn::class);
     });
 
-    it('fails login with wrong password', function () {
+    it('fails login with wrong password', function (): void {
         $this->createTestUser([
             'email' => 'user@example.com',
             'password' => password_hash('correctpassword', PASSWORD_ARGON2ID),
@@ -116,7 +116,7 @@ describe('Login', function () {
             ->assertJsonValidationErrors(['email']);
     });
 
-    it('fails login with non-existent user', function () {
+    it('fails login with non-existent user', function (): void {
         $response = $this->postJson('/auth/login', [
             'email' => 'nonexistent@example.com',
             'password' => 'anypassword',
@@ -127,8 +127,8 @@ describe('Login', function () {
     });
 });
 
-describe('Protected Routes', function () {
-    it('gets current user with valid token', function () {
+describe('Protected Routes', function (): void {
+    it('gets current user with valid token', function (): void {
         $user = $this->createTestUser();
 
         $result = BetterAuth::signUp([
@@ -145,13 +145,13 @@ describe('Protected Routes', function () {
             ]);
     });
 
-    it('returns 401 without token', function () {
+    it('returns 401 without token', function (): void {
         $response = $this->getJson('/auth/me');
 
         $response->assertStatus(401);
     });
 
-    it('returns 401 with invalid token', function () {
+    it('returns 401 with invalid token', function (): void {
         $response = $this->withHeader('Authorization', 'Bearer invalid.token.here')
             ->getJson('/auth/me');
 
@@ -159,8 +159,8 @@ describe('Protected Routes', function () {
     });
 });
 
-describe('Token Refresh', function () {
-    it('refreshes token successfully', function () {
+describe('Token Refresh', function (): void {
+    it('refreshes token successfully', function (): void {
         $result = BetterAuth::signUp([
             'email' => 'refresh@example.com',
             'password' => 'password123',
@@ -183,7 +183,7 @@ describe('Token Refresh', function () {
         expect($response->json('refresh_token'))->not->toBe($result['refresh_token']);
     });
 
-    it('fails with invalid refresh token', function () {
+    it('fails with invalid refresh token', function (): void {
         $response = $this->postJson('/auth/refresh', [
             'refresh_token' => 'invalid-token',
         ]);
@@ -192,7 +192,7 @@ describe('Token Refresh', function () {
             ->assertJson(['error' => 'token_invalid']);
     });
 
-    it('fails with already used refresh token', function () {
+    it('fails with already used refresh token', function (): void {
         $result = BetterAuth::signUp([
             'email' => 'rotation@example.com',
             'password' => 'password123',
@@ -210,8 +210,8 @@ describe('Token Refresh', function () {
     });
 });
 
-describe('Logout', function () {
-    it('logs out and revokes refresh token', function () {
+describe('Logout', function (): void {
+    it('logs out and revokes refresh token', function (): void {
         Event::fake([UserLoggedOut::class]);
 
         $result = BetterAuth::signUp([
@@ -236,8 +236,8 @@ describe('Logout', function () {
     });
 });
 
-describe('Revoke All Tokens', function () {
-    it('revokes all tokens for user', function () {
+describe('Revoke All Tokens', function (): void {
+    it('revokes all tokens for user', function (): void {
         $result = BetterAuth::signUp([
             'email' => 'revokeall@example.com',
             'password' => 'password123',
@@ -251,8 +251,8 @@ describe('Revoke All Tokens', function () {
     });
 });
 
-describe('Password Update', function () {
-    it('updates password with correct current password', function () {
+describe('Password Update', function (): void {
+    it('updates password with correct current password', function (): void {
         $result = BetterAuth::signUp([
             'email' => 'password@example.com',
             'password' => 'oldpassword123',
@@ -275,7 +275,7 @@ describe('Password Update', function () {
         ])->assertStatus(200);
     });
 
-    it('fails with wrong current password', function () {
+    it('fails with wrong current password', function (): void {
         $result = BetterAuth::signUp([
             'email' => 'wrongcurrent@example.com',
             'password' => 'correctpassword',
