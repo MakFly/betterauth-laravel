@@ -1,0 +1,75 @@
+{
+    "name": "betterauth/laravel",
+    "description": "Modern authentication for Laravel with Paseto V4 tokens, OAuth, 2FA, Magic Links, and Passkeys",
+    "keywords": ["laravel", "authentication", "paseto", "oauth", "2fa", "passkeys", "webauthn", "magic-link"],
+    "license": "MIT",
+    "type": "library",
+    "authors": [
+        {
+            "name": "BetterAuth Team",
+            "email": "hello@betterauth.dev"
+        }
+    ],
+    "repositories": [
+        {
+            "type": "path",
+            "url": "../betterauth-core",
+            "options": {
+                "symlink": true
+            }
+        }
+    ],
+    "require": {
+        "php": "^8.2",
+        "betterauth/core": "*@dev",
+        "illuminate/auth": "^10.0|^11.0|^12.0",
+        "illuminate/contracts": "^10.0|^11.0|^12.0",
+        "illuminate/database": "^10.0|^11.0|^12.0",
+        "illuminate/http": "^10.0|^11.0|^12.0",
+        "illuminate/routing": "^10.0|^11.0|^12.0",
+        "illuminate/support": "^10.0|^11.0|^12.0"
+    },
+    "suggest": {
+        "laravel/socialite": "Required for OAuth authentication (Google, GitHub, Facebook, etc.)"
+    },
+    "require-dev": {
+        "laravel/pint": "^1.0",
+        "laravel/socialite": "^5.24",
+        "orchestra/testbench": "^8.0|^9.0|^10.0",
+        "pestphp/pest": "^2.0|^3.0",
+        "phpstan/phpstan": "^1.10"
+    },
+    "autoload": {
+        "psr-4": {
+            "BetterAuth\\Laravel\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "BetterAuth\\Laravel\\Tests\\": "tests/"
+        }
+    },
+    "scripts": {
+        "test": "pest",
+        "phpstan": "phpstan analyse",
+        "pint": "pint"
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "BetterAuth\\Laravel\\BetterAuthServiceProvider"
+            ],
+            "aliases": {
+                "BetterAuth": "BetterAuth\\Laravel\\Facades\\BetterAuth"
+            }
+        }
+    },
+    "config": {
+        "sort-packages": true,
+        "allow-plugins": {
+            "pestphp/pest-plugin": true
+        }
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true
+}

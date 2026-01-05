@@ -1,0 +1,33 @@
+# Dependencies
+/vendor/
+composer.lock
+
+# Build & Cache
+/build/
+/.phpunit.cache/
+
+# IDE
+/.idea/
+/.vscode/
+*.sublime-*
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Coverage
+/coverage/
+.phpunit.result.cache
+clover.xml
+
+# Logs
+*.log
+
+# SQLite
+*.sqlite
+*.sqlite-journal
