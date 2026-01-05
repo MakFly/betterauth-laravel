@@ -42,6 +42,8 @@ jobs:
 
       - name: Install dependencies
         run: |
+          # Remove the local path repository and add the cloned one
+          composer config --unset repositories.0
           composer config repositories.betterauth-core path ./betterauth-core
           composer require "laravel/framework:${{ matrix.laravel }}" --no-interaction --no-update
           composer update --prefer-dist --no-interaction --no-progress
@@ -79,6 +81,7 @@ jobs:
 
       - name: Install dependencies
         run: |
+          composer config --unset repositories.0
           composer config repositories.betterauth-core path ./betterauth-core
           composer install --prefer-dist --no-interaction --no-progress
 
@@ -109,6 +112,7 @@ jobs:
 
       - name: Install dependencies
         run: |
+          composer config --unset repositories.0
           composer config repositories.betterauth-core path ./betterauth-core
           composer install --prefer-dist --no-interaction --no-progress
 
