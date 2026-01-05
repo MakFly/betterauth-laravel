@@ -16,7 +16,6 @@ jobs:
         php: ['8.2', '8.3', '8.4']
         laravel: ['10.*', '11.*', '12.*']
         exclude:
-          # Laravel 12 requires PHP 8.2+
           - php: '8.2'
             laravel: '12.*'
 
@@ -40,11 +39,13 @@ jobs:
           extensions: dom, curl, libxml, mbstring, zip, pcntl, pdo, sqlite, pdo_sqlite
           coverage: none
 
+      - name: Fix composer.json repositories
+        run: |
+          jq '.repositories = [{"type": "path", "url": "./betterauth-core", "options": {"symlink": true}}]' composer.json > composer.tmp.json
+          mv composer.tmp.json composer.json
+
       - name: Install dependencies
         run: |
-          # Remove the local path repository and add the cloned one
-          composer config --unset repositories.0
-          composer config repositories.betterauth-core path ./betterauth-core
           composer require "laravel/framework:${{ matrix.laravel }}" --no-interaction --no-update
           composer update --prefer-dist --no-interaction --no-progress
 
@@ -79,11 +80,13 @@ jobs:
           extensions: dom, curl, libxml, mbstring, zip
           coverage: none
 
-      - name: Install dependencies
+      - name: Fix composer.json repositories
         run: |
-          composer config --unset repositories.0
-          composer config repositories.betterauth-core path ./betterauth-core
-          composer install --prefer-dist --no-interaction --no-progress
+          jq '.repositories = [{"type": "path", "url": "./betterauth-core", "options": {"symlink": true}}]' composer.json > composer.tmp.json
+          mv composer.tmp.json composer.json
+
+      - name: Install dependencies
+        run: composer install --prefer-dist --no-interaction --no-progress
 
       - name: Check code style
         run: composer pint -- --test
@@ -110,11 +113,13 @@ jobs:
           extensions: dom, curl, libxml, mbstring, zip
           coverage: none
 
-      - name: Install dependencies
+      - name: Fix composer.json repositories
         run: |
-          composer config --unset repositories.0
-          composer config repositories.betterauth-core path ./betterauth-core
-          composer install --prefer-dist --no-interaction --no-progress
+          jq '.repositories = [{"type": "path", "url": "./betterauth-core", "options": {"symlink": true}}]' composer.json > composer.tmp.json
+          mv composer.tmp.json composer.json
+
+      - name: Install dependencies
+        run: composer install --prefer-dist --no-interaction --no-progress
 
       - name: Run PHPStan
         run: composer phpstan
