@@ -1,27 +1,13 @@
-<p align="center">
-  <img src="https://raw.githubusercontent.com/betterauth/assets/main/logo.svg" width="120" alt="BetterAuth Logo">
-</p>
+# BetterAuth for Laravel
 
-<h1 align="center">BetterAuth for Laravel</h1>
+**Modern authentication for Laravel with Paseto V4 tokens, 2FA, and Magic Links**
 
-<p align="center">
-  <strong>Modern authentication for Laravel with Paseto V4 tokens, 2FA, and Magic Links</strong>
-</p>
+[![Tests](https://github.com/MakFly/betterauth-laravel/actions/workflows/tests.yml/badge.svg)](https://github.com/MakFly/betterauth-laravel/actions/workflows/tests.yml)
+[![PHP Version](https://img.shields.io/badge/php-8.2%2B-blue.svg)](https://php.net)
+[![Laravel](https://img.shields.io/badge/laravel-10%20%7C%2011%20%7C%2012-red.svg)](https://laravel.com)
+[![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 
-<p align="center">
-  <a href="https://github.com/betterauth/laravel/actions/workflows/tests.yml"><img src="https://github.com/betterauth/laravel/actions/workflows/tests.yml/badge.svg" alt="Tests"></a>
-  <a href="https://packagist.org/packages/betterauth/laravel"><img src="https://img.shields.io/packagist/v/betterauth/laravel.svg?style=flat-square" alt="Latest Version"></a>
-  <a href="https://packagist.org/packages/betterauth/laravel"><img src="https://img.shields.io/packagist/php-v/betterauth/laravel.svg?style=flat-square" alt="PHP Version"></a>
-  <a href="https://packagist.org/packages/betterauth/laravel"><img src="https://img.shields.io/packagist/l/betterauth/laravel.svg?style=flat-square" alt="License"></a>
-</p>
-
-<p align="center">
-  <a href="#installation">Installation</a> •
-  <a href="#quick-start">Quick Start</a> •
-  <a href="#features">Features</a> •
-  <a href="#api-reference">API Reference</a> •
-  <a href="#documentation">Documentation</a>
-</p>
+[Installation](#installation) • [Quick Start](#quick-start) • [Features](#features) • [API Reference](#api-reference)
 
 ---
 
@@ -347,8 +333,3 @@ composer phpstan
 
 MIT License. See [LICENSE](LICENSE) for details.
 
----
-
-<p align="center">
-  Made with care by the <a href="https://betterauth.dev">BetterAuth</a> team
-</p>
