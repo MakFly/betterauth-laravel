@@ -2,7 +2,6 @@
 
 **Modern authentication for Laravel with Paseto V4 tokens, 2FA, and Magic Links**
 
-[![Tests](https://github.com/MakFly/betterauth-laravel/actions/workflows/tests.yml/badge.svg)](https://github.com/MakFly/betterauth-laravel/actions/workflows/tests.yml)
 [![PHP Version](https://img.shields.io/badge/php-8.2%2B-blue.svg)](https://php.net)
 [![Laravel](https://img.shields.io/badge/laravel-10%20%7C%2011%20%7C%2012-red.svg)](https://laravel.com)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
