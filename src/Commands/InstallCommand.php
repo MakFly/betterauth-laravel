@@ -251,6 +251,10 @@ final class InstallCommand extends Command
 
     private function generateMigration(string $name, string $content, string $timestamp): void
     {
+        if ($this->migrationExists($name) && ! $this->option('force')) {
+            return;
+        }
+
         $filename = "{$timestamp}_{$name}.php";
         $path = database_path("migrations/{$filename}");
 
@@ -261,12 +265,19 @@ final class InstallCommand extends Command
         $this->files->put($path, $content);
     }
 
+    private function migrationExists(string $name): bool
+    {
+        $pattern = database_path("migrations/*_{$name}.php");
+
+        return count(glob($pattern) ?: []) > 0;
+    }
+
     private function modifyDefaultUsersMigration(string $migrationPath, bool $includeOptionalFields): void
     {
         $content = $this->files->get($migrationPath);
 
         // Check if already modified
-        if (str_contains($content, 'better_auth')) {
+        if (str_contains($content, "json('roles')") || str_contains($content, 'better_auth')) {
             return;
         }
 
