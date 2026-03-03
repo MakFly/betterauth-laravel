@@ -10,6 +10,7 @@ use BetterAuth\Core\PasswordHasher;
 use BetterAuth\Core\TokenService;
 use BetterAuth\Laravel\Commands\CleanupCommand;
 use BetterAuth\Laravel\Commands\InstallCommand;
+use BetterAuth\Laravel\Commands\OpenApiInstallCommand;
 use BetterAuth\Laravel\Commands\SecretCommand;
 use BetterAuth\Laravel\Guards\BetterAuthGuard;
 use BetterAuth\Laravel\Guards\BetterAuthSessionGuard;
@@ -204,6 +205,7 @@ final class BetterAuthServiceProvider extends ServiceProvider
 
         $this->commands([
             InstallCommand::class,
+            OpenApiInstallCommand::class,
             SecretCommand::class,
             CleanupCommand::class,
         ]);
