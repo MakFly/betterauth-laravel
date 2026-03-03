@@ -15,13 +15,7 @@ jobs:
       matrix:
         include:
           - php: '8.2'
-            laravel: '10.*'
-            allow_failure: false
-          - php: '8.2'
             laravel: '11.*'
-            allow_failure: false
-          - php: '8.3'
-            laravel: '10.*'
             allow_failure: false
           - php: '8.3'
             laravel: '11.*'
@@ -148,11 +142,18 @@ jobs:
 
   lowest-dependencies:
     runs-on: ubuntu-latest
-    name: Lowest Dependencies (PHP 8.2 / Laravel 10)
+    name: Lowest Dependencies (PHP 8.2 / Laravel 11)
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+
+      - name: Checkout betterauth-core
+        uses: actions/checkout@v4
+        with:
+          repository: MakFly/betterauth-core
+          path: betterauth-core
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
@@ -161,10 +162,15 @@ jobs:
           extensions: dom, curl, libxml, mbstring, zip, pcntl, pdo, sqlite, pdo_sqlite
           coverage: none
 
+      - name: Fix composer.json repositories
+        run: |
+          jq '.repositories = [{"type": "path", "url": "./betterauth-core", "options": {"symlink": true}}]' composer.json > composer.tmp.json
+          mv composer.tmp.json composer.json
+
       - name: Install lowest dependencies
         run: |
-          composer require "laravel/framework:10.*" --no-interaction --no-update
-          composer update --prefer-lowest --prefer-dist --no-interaction --no-progress
+          composer require "laravel/framework:11.*" --no-interaction --no-update
+          composer update --prefer-lowest --prefer-stable --prefer-dist --no-interaction --no-progress
 
       - name: Run tests on lowest dependencies
         run: composer test
