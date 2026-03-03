@@ -698,7 +698,7 @@ ENV;
         if ($this->files->exists($apiPath)) {
             $content = $this->files->get($apiPath);
 
-            if (str_contains($content, 'BetterAuth\\\\Laravel\\\\Http\\\\Controllers\\\\AuthController')) {
+            if (preg_match('/\\\\?BetterAuth\\\\Laravel\\\\Http\\\\Controllers\\\\AuthController::class/', $content) === 1) {
                 $this->components->info('routes/api.php already contains BetterAuth routes');
 
                 return;
@@ -707,6 +707,11 @@ ENV;
             $this->components->task('Adding BetterAuth to routes/api.php', function () use ($apiPath, $content): void {
                 // Add BetterAuth routes at the beginning
                 $betterauthRoutes = $this->getBetterAuthRoutes();
+
+                // Prevent duplicate PHP opening tag/import when prepending to an existing routes file
+                $content = preg_replace('/^<\?php\s*/', '', $content) ?? $content;
+                $content = preg_replace('/^use Illuminate\\Support\\Facades\\Route;\s*/m', '', $content) ?? $content;
+                $content = ltrim($content);
 
                 $this->files->put($apiPath, '<?php
 
