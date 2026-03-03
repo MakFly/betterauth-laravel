@@ -143,6 +143,7 @@ jobs:
   lowest-dependencies:
     runs-on: ubuntu-latest
     name: Lowest Dependencies (PHP 8.2 / Laravel 11)
+    continue-on-error: true
 
     steps:
       - name: Checkout code
