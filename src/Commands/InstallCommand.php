@@ -651,8 +651,8 @@ ENV;
 
         $content = $this->files->get($bootstrapPath);
 
-        // Check if API routes are already configured
-        if (str_contains($content, "'api'")) {
+        // Check if API routes are already configured in withRouting
+        if (str_contains($content, 'api:') && preg_match('/->withRouting\s*\(/s', $content)) {
             $this->components->info('API routes already configured in bootstrap/app.php');
 
             return;
@@ -674,11 +674,17 @@ ENV;
             $backupPath = $bootstrapPath.'.betterauth.bak';
             $this->files->copy($bootstrapPath, $backupPath);
 
-            // Add API routes configuration
-            $content = str_replace(
-                '->withRouting(',
-                "->withRouting(\n            api: __DIR__.'/../routes/api.php',",
+            // Defense-in-depth: abort if api: is already present
+            if (str_contains($content, 'api:')) {
+                return;
+            }
+
+            // Add API routes configuration - insert after withRouting(
+            $content = preg_replace(
+                '/->withRouting\s*\(\s*/',
+                "->withRouting(\n        api: __DIR__.'/../routes/api.php',",
                 $content,
+                1
             );
 
             $this->files->put($bootstrapPath, $content);
