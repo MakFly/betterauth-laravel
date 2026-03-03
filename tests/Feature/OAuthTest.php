@@ -29,14 +29,14 @@ describe('OAuth Routes', function (): void {
         // Use get() instead of getJson() since OAuth redirects (not JSON response)
         $response = $this->get('/auth/oauth/google');
 
-        // OAuth route exists - may return 302 (redirect), 500 (Socialite not configured), or 403 (disabled)
-        expect($response->status())->toBeIn([302, 403, 500]);
+        // OAuth route exists - may return 302 (redirect), 502 (provider unavailable), or 403 (disabled)
+        expect($response->status())->toBeIn([302, 403, 502]);
     });
 
     it('redirects to GitHub OAuth', function (): void {
         $response = $this->get('/auth/oauth/github');
 
-        expect($response->status())->toBeIn([302, 403, 500]);
+        expect($response->status())->toBeIn([302, 403, 502]);
     });
 
     it('returns 404 for unsupported provider', function (): void {

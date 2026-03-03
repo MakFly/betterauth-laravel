@@ -130,7 +130,7 @@ final class OpenApiInstallCommand extends Command
                 '/return\s*\[\s*/',
                 "return [\n    {$providerClass},\n    ",
                 $content,
-                1
+                1,
             );
 
             if (! is_string($updated)) {

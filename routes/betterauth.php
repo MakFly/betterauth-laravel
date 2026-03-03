@@ -26,12 +26,15 @@ Route::prefix($prefix)
     ->group(function (): void {
         // Public routes
         Route::post('/register', [AuthController::class, 'register'])
+            ->middleware('throttle:betterauth-register')
             ->name('register');
 
         Route::post('/login', [AuthController::class, 'login'])
+            ->middleware('throttle:betterauth-login')
             ->name('login');
 
         Route::post('/refresh', [AuthController::class, 'refresh'])
+            ->middleware('throttle:betterauth-refresh')
             ->name('refresh');
 
         // Protected routes
@@ -52,21 +55,26 @@ Route::prefix($prefix)
         // OAuth routes (when enabled)
         if (config('betterauth.oauth.enabled', false)) {
             Route::get('/oauth/{provider}', [AuthController::class, 'oauthRedirect'])
+                ->middleware('throttle:betterauth-oauth')
                 ->name('oauth.redirect');
 
             Route::get('/oauth/{provider}/callback', [AuthController::class, 'oauthCallback'])
+                ->middleware('throttle:betterauth-oauth')
                 ->name('oauth.callback');
         }
 
         // Magic Link routes (when enabled)
         if (config('betterauth.magic_links.enabled', false)) {
             Route::post('/magic-link', [\BetterAuth\Laravel\Http\Controllers\MagicLinkController::class, 'send'])
+                ->middleware('throttle:betterauth-magic-link-send')
                 ->name('magic-link.send');
 
-            Route::get('/magic-link/verify', [\BetterAuth\Laravel\Http\Controllers\MagicLinkController::class, 'verify'])
+            Route::match(['get', 'post'], '/magic-link/verify', [\BetterAuth\Laravel\Http\Controllers\MagicLinkController::class, 'verify'])
+                ->middleware('throttle:betterauth-magic-link-verify')
                 ->name('magic-link.verify');
 
             Route::post('/magic-link/check', [\BetterAuth\Laravel\Http\Controllers\MagicLinkController::class, 'check'])
+                ->middleware('throttle:betterauth-magic-link-check')
                 ->name('magic-link.check');
         }
 

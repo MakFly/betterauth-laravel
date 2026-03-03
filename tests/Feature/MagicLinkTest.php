@@ -268,6 +268,49 @@ describe('Magic Link', function (): void {
                 'message' => 'Authenticated successfully',
             ]);
     });
+
+    it('supports post verification to reduce token exposure in urls', function (): void {
+        $this->createTestUser(['email' => 'post-verify@example.com']);
+
+        $token = bin2hex(random_bytes(32));
+        $hashedToken = hash('sha256', $token);
+
+        DB::table('better_auth_magic_links')->insert([
+            'id' => (string) \Illuminate\Support\Str::uuid7(),
+            'email' => 'post-verify@example.com',
+            'token' => $hashedToken,
+            'expires_at' => now()->addMinutes(15),
+            'used_at' => null,
+            'created_at' => now(),
+        ]);
+
+        $response = $this->postJson('/auth/magic-link/verify', [
+            'token' => $token,
+        ]);
+
+        $response->assertStatus(200)
+            ->assertJson([
+                'message' => 'Authenticated successfully',
+            ]);
+    });
+
+    it('rate limits repeated magic link send attempts', function (): void {
+        foreach (range(1, 3) as $_) {
+            $this->postJson('/auth/magic-link', [
+                'email' => 'rate-limit-magic@example.com',
+            ])->assertStatus(200);
+        }
+
+        $limited = $this->postJson('/auth/magic-link', [
+            'email' => 'rate-limit-magic@example.com',
+        ]);
+
+        $limited->assertStatus(429)
+            ->assertJson([
+                'error' => 'rate_limited',
+                'limiter' => 'betterauth-magic-link-send',
+            ]);
+    });
 });
 
 describe('Magic Link Service', function (): void {

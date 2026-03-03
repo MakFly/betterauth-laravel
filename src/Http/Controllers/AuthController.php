@@ -4,12 +4,15 @@ declare(strict_types=1);
 
 namespace BetterAuth\Laravel\Http\Controllers;
 
+use BetterAuth\Laravel\Services\AuthUserResponseFormatter;
 use BetterAuth\Laravel\Services\BetterAuthManager;
+use BetterAuth\Laravel\Support\ApiExceptionFactory;
+use BetterAuth\Laravel\Support\ApiResponseFactory;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Validation\ValidationException;
 
 /**
  * BetterAuth API Controller.
@@ -18,14 +21,25 @@ use Illuminate\Validation\ValidationException;
  */
 final class AuthController extends Controller
 {
+    /**
+     * @param  BetterAuthManager  $auth  Service principal d'authentification
+     * @param  AuthUserResponseFormatter  $formatter  Formatteur de payload user
+     * @param  ApiResponseFactory  $responses  Factory de réponses JSON/API Platform
+     * @param  ApiExceptionFactory  $exceptions  Factory d'exceptions HTTP/API
+     */
     public function __construct(
         private readonly BetterAuthManager $auth,
+        private readonly AuthUserResponseFormatter $formatter,
+        private readonly ApiResponseFactory $responses,
+        private readonly ApiExceptionFactory $exceptions,
     ) {}
 
     /**
-     * Register a new user.
+     * Inscription d'un utilisateur.
      *
-     * POST /auth/register
+     * @param  Request  $request  Requête HTTP d'inscription
+     *
+     * @throws \Illuminate\Validation\ValidationException
      */
     public function register(Request $request): JsonResponse
     {
@@ -35,29 +49,30 @@ final class AuthController extends Controller
             'name' => ['sometimes', 'string', 'max:255'],
         ]);
 
-        // Check if email already exists
         if ($this->auth->emailExists($validated['email'])) {
-            throw ValidationException::withMessages([
+            throw $this->exceptions->validation([
                 'email' => ['This email is already registered.'],
             ]);
         }
 
         $result = $this->auth->signUp($validated);
 
-        return response()->json([
+        return $this->responses->created([
             'message' => 'Registration successful',
-            'user' => $this->formatUser($result['user']),
+            'user' => $this->formatter->formatUser($result['user']),
             'access_token' => $result['access_token'],
             'refresh_token' => $result['refresh_token'],
             'token_type' => $result['token_type'],
             'expires_in' => $result['expires_in'],
-        ], 201);
+        ], $request, noStore: true);
     }
 
     /**
-     * Authenticate a user.
+     * Authentification par credentials.
      *
-     * POST /auth/login
+     * @param  Request  $request  Requête HTTP de login
+     *
+     * @throws \Illuminate\Validation\ValidationException
      */
     public function login(Request $request): JsonResponse
     {
@@ -72,46 +87,43 @@ final class AuthController extends Controller
                 $validated['password'],
             );
 
-            return response()->json([
+            return $this->responses->ok([
                 'message' => 'Login successful',
-                'user' => $this->formatUser($result['user']),
+                'user' => $this->formatter->formatUser($result['user']),
                 'access_token' => $result['access_token'],
                 'refresh_token' => $result['refresh_token'],
                 'token_type' => $result['token_type'],
                 'expires_in' => $result['expires_in'],
-            ]);
-
+            ], $request, noStore: true);
         } catch (\BetterAuth\Core\Exceptions\InvalidCredentialsException $e) {
-            throw ValidationException::withMessages([
+            throw $this->exceptions->validation([
                 'email' => ['The provided credentials are incorrect.'],
             ]);
         }
     }
 
     /**
-     * Get current authenticated user.
+     * Retourne l'utilisateur authentifié.
      *
-     * GET /auth/me
+     * @param  Request  $request  Requête HTTP
      */
     public function me(Request $request): JsonResponse
     {
         $user = Auth::guard('betterauth')->user();
 
         if ($user === null) {
-            return response()->json([
-                'message' => 'Unauthenticated',
-            ], 401);
+            return $this->responses->unauthenticated($request);
         }
 
-        return response()->json([
-            'user' => $this->formatAuthenticatable($user),
-        ]);
+        return $this->responses->ok([
+            'user' => $this->formatter->formatAuthenticatable($user),
+        ], $request, noStore: true);
     }
 
     /**
-     * Refresh access token.
+     * Rafraîchit une paire de tokens à partir d'un refresh token.
      *
-     * POST /auth/refresh
+     * @param  Request  $request  Requête HTTP
      */
     public function refresh(Request $request): JsonResponse
     {
@@ -122,26 +134,22 @@ final class AuthController extends Controller
         try {
             $result = $this->auth->refresh($validated['refresh_token']);
 
-            return response()->json([
+            return $this->responses->ok([
                 'message' => 'Token refreshed',
                 'access_token' => $result['access_token'],
                 'refresh_token' => $result['refresh_token'],
                 'token_type' => $result['token_type'],
                 'expires_in' => $result['expires_in'],
-            ]);
-
+            ], $request, noStore: true);
         } catch (\BetterAuth\Core\Exceptions\InvalidTokenException $e) {
-            return response()->json([
-                'message' => 'Invalid refresh token',
-                'error' => 'token_invalid',
-            ], 401);
+            return $this->responses->error('Invalid refresh token', 'token_invalid', 401, $request, noStore: true);
         }
     }
 
     /**
-     * Logout and revoke refresh token.
+     * Déconnecte l'utilisateur courant via son refresh token.
      *
-     * POST /auth/logout
+     * @param  Request  $request  Requête HTTP
      */
     public function logout(Request $request): JsonResponse
     {
@@ -151,38 +159,38 @@ final class AuthController extends Controller
 
         $this->auth->signOut($validated['refresh_token']);
 
-        return response()->json([
+        return $this->responses->ok([
             'message' => 'Logged out successfully',
-        ]);
+        ], $request, noStore: true);
     }
 
     /**
-     * Revoke all tokens for the authenticated user.
+     * Révoque tous les refresh tokens de l'utilisateur courant.
      *
-     * POST /auth/revoke-all
+     * @param  Request  $request  Requête HTTP
      */
     public function revokeAll(Request $request): JsonResponse
     {
         $user = Auth::guard('betterauth')->user();
 
         if ($user === null) {
-            return response()->json([
-                'message' => 'Unauthenticated',
-            ], 401);
+            return $this->responses->unauthenticated($request);
         }
 
         $userId = $user->getAuthIdentifier();
         $this->auth->revokeAll((string) $userId);
 
-        return response()->json([
+        return $this->responses->ok([
             'message' => 'All tokens revoked',
-        ]);
+        ], $request, noStore: true);
     }
 
     /**
-     * Update password.
+     * Met à jour le mot de passe de l'utilisateur authentifié.
      *
-     * PUT /auth/password
+     * @param  Request  $request  Requête HTTP
+     *
+     * @throws \Illuminate\Validation\ValidationException
      */
     public function updatePassword(Request $request): JsonResponse
     {
@@ -194,9 +202,7 @@ final class AuthController extends Controller
         $user = Auth::guard('betterauth')->user();
 
         if ($user === null) {
-            return response()->json([
-                'message' => 'Unauthenticated',
-            ], 401);
+            return $this->responses->unauthenticated($request);
         }
 
         $userId = (string) $user->getAuthIdentifier();
@@ -209,31 +215,32 @@ final class AuthController extends Controller
             );
 
             if (! $updated) {
-                throw ValidationException::withMessages([
+                throw $this->exceptions->validation([
                     'current_password' => ['The current password is incorrect.'],
                 ]);
             }
 
-            return response()->json([
+            return $this->responses->ok([
                 'message' => 'Password updated successfully',
-            ]);
-
+            ], $request, noStore: true);
         } catch (\BetterAuth\Core\Exceptions\InvalidCredentialsException $e) {
-            throw ValidationException::withMessages([
+            throw $this->exceptions->validation([
                 'current_password' => ['The current password is incorrect.'],
             ]);
         }
     }
 
     /**
-     * Redirect to OAuth provider.
+     * Redirige vers le provider OAuth demandé.
      *
-     * GET /auth/oauth/{provider}
+     * @param  string  $provider  Provider OAuth
+     *
+     * @throws \Symfony\Component\HttpKernel\Exception\HttpException
      */
-    public function oauthRedirect(string $provider): \Illuminate\Http\RedirectResponse
+    public function oauthRedirect(string $provider): RedirectResponse
     {
         if (! config('betterauth.oauth.enabled')) {
-            abort(403, 'OAuth authentication is not enabled.');
+            throw $this->exceptions->forbidden('OAuth authentication is not enabled.');
         }
 
         try {
@@ -241,21 +248,26 @@ final class AuthController extends Controller
 
             return $oauthManager->redirect($provider);
         } catch (\InvalidArgumentException $e) {
-            abort(404, $e->getMessage());
+            throw $this->exceptions->notFound($e->getMessage());
         } catch (\Exception $e) {
-            abort(500, 'OAuth redirect failed: '.$e->getMessage());
+            report($e);
+
+            throw $this->exceptions->badGateway('OAuth provider temporarily unavailable.');
         }
     }
 
     /**
-     * Handle OAuth callback.
+     * Traite le callback OAuth provider.
      *
-     * GET /auth/oauth/{provider}/callback
+     * @param  Request  $request  Requête HTTP de callback
+     * @param  string  $provider  Provider OAuth
+     *
+     * @throws \Symfony\Component\HttpKernel\Exception\HttpException
      */
     public function oauthCallback(Request $request, string $provider): JsonResponse
     {
         if (! config('betterauth.oauth.enabled')) {
-            abort(403, 'OAuth authentication is not enabled.');
+            throw $this->exceptions->forbidden('OAuth authentication is not enabled.');
         }
 
         try {
@@ -265,7 +277,6 @@ final class AuthController extends Controller
             $user = $result['user'];
             $isNew = $result['is_new'];
 
-            // Generate tokens using BetterAuthManager
             $authManager = app(\BetterAuth\Laravel\Services\BetterAuthManager::class);
             $tokens = $authManager->createTokensForUser($user);
 
@@ -279,62 +290,19 @@ final class AuthController extends Controller
                 'expires_in' => config('betterauth.tokens.access.lifetime', 3600),
             ];
 
-            return response()->json($response, $isNew ? 201 : 200);
+            if ($isNew) {
+                return $this->responses->created($response, $request, noStore: true);
+            }
+
+            return $this->responses->ok($response, $request, noStore: true);
         } catch (\RuntimeException $e) {
-            return response()->json([
-                'message' => 'OAuth authentication failed',
-                'error' => $e->getMessage(),
-            ], 422);
+            report($e);
+
+            return $this->responses->error('OAuth authentication failed', 'oauth_failed', 422, $request, noStore: true);
         } catch (\Exception $e) {
-            return response()->json([
-                'message' => 'OAuth callback failed',
-                'error' => config('app.debug') ? $e->getMessage() : 'Authentication failed',
-            ], 500);
+            report($e);
+
+            return $this->responses->error('OAuth callback failed', 'authentication_failed', 500, $request, noStore: true);
         }
-    }
-
-    /**
-     * Format user array for response.
-     *
-     * @param  array<string, mixed>|object  $user
-     * @return array<string, mixed>
-     */
-    private function formatUser(array|object $user): array
-    {
-        if (is_object($user)) {
-            $user = method_exists($user, 'toArray') ? $user->toArray() : (array) $user;
-        }
-
-        // Remove sensitive fields
-        unset($user['password']);
-
-        return $user;
-    }
-
-    /**
-     * Format Authenticatable for response.
-     *
-     * @return array<string, mixed>
-     */
-    private function formatAuthenticatable(\Illuminate\Contracts\Auth\Authenticatable $user): array
-    {
-        $data = [
-            'id' => $user->getAuthIdentifier(),
-        ];
-
-        // Add common user attributes if available
-        if (method_exists($user, 'toArray')) {
-            $userData = $user->toArray();
-            unset($userData['password']);
-            $data = array_merge($data, $userData);
-        } elseif (method_exists($user, 'getAttribute')) {
-            $data['email'] = $user->getAttribute('email');
-            $data['name'] = $user->getAttribute('name');
-            $data['avatar'] = $user->getAttribute('avatar');
-            $data['email_verified_at'] = $user->getAttribute('email_verified_at');
-            $data['created_at'] = $user->getAttribute('created_at');
-        }
-
-        return $data;
     }
 }

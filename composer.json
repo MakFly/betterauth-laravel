@@ -19,15 +19,6 @@
       "email": "hello@betterauth.dev"
     }
   ],
-  "repositories": [
-    {
-      "type": "path",
-      "url": "../betterauth-core",
-      "options": {
-        "symlink": true
-      }
-    }
-  ],
   "require": {
     "php": "^8.2",
     "betterauth/core": "*@dev",
@@ -63,7 +54,7 @@
   "scripts": {
     "test": "pest",
     "test:coverage": "pest --coverage",
-    "phpstan": "phpstan analyse",
+    "phpstan": "phpstan analyse --memory-limit=512M",
     "pint": "pint",
     "pint:test": "pint --test",
     "ci": [

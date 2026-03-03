@@ -17,9 +17,12 @@ use BetterAuth\Laravel\Guards\BetterAuthSessionGuard;
 use BetterAuth\Laravel\OAuth\OAuthManager;
 use BetterAuth\Laravel\Providers\BetterAuthUserProvider;
 use BetterAuth\Laravel\Services\BetterAuthManager;
+use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Filesystem\Filesystem;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
 
 final class BetterAuthServiceProvider extends ServiceProvider
@@ -52,6 +55,7 @@ final class BetterAuthServiceProvider extends ServiceProvider
         $this->bootPublishes();
         $this->bootCommands();
         $this->bootGuards();
+        $this->bootRateLimiters();
         $this->bootRoutes();
 
         // Auto-install on first package installation
@@ -263,6 +267,105 @@ final class BetterAuthServiceProvider extends ServiceProvider
         }
 
         $this->loadRoutesFrom(__DIR__.'/../routes/betterauth.php');
+    }
+
+    /**
+     * Register BetterAuth route rate limiters.
+     */
+    private function bootRateLimiters(): void
+    {
+        $rateLimiting = $this->app['config']['betterauth.rate_limiting'] ?? [];
+
+        if (! ($rateLimiting['enabled'] ?? true)) {
+            return;
+        }
+
+        $defaultMaxAttempts = max(1, (int) ($rateLimiting['max_attempts'] ?? 5));
+        $defaultDecayMinutes = max(1, (int) ($rateLimiting['decay_minutes'] ?? 15));
+        $limits = $rateLimiting['limits'] ?? [];
+
+        $this->registerRateLimiter(
+            name: 'betterauth-login',
+            maxAttempts: max(1, (int) ($limits['login']['max_attempts'] ?? $defaultMaxAttempts)),
+            decayMinutes: max(1, (int) ($limits['login']['decay_minutes'] ?? $defaultDecayMinutes)),
+            keyResolver: fn (Request $request): string => $this->resolveEmailAwareRateLimitKey($request, 'login'),
+        );
+
+        $this->registerRateLimiter(
+            name: 'betterauth-register',
+            maxAttempts: max(1, (int) ($limits['register']['max_attempts'] ?? $defaultMaxAttempts)),
+            decayMinutes: max(1, (int) ($limits['register']['decay_minutes'] ?? $defaultDecayMinutes)),
+            keyResolver: fn (Request $request): string => $this->resolveEmailAwareRateLimitKey($request, 'register'),
+        );
+
+        $this->registerRateLimiter(
+            name: 'betterauth-refresh',
+            maxAttempts: max(1, (int) ($limits['refresh']['max_attempts'] ?? $defaultMaxAttempts)),
+            decayMinutes: max(1, (int) ($limits['refresh']['decay_minutes'] ?? $defaultDecayMinutes)),
+            keyResolver: fn (Request $request): string => $this->resolveIpRateLimitKey($request, 'refresh'),
+        );
+
+        $this->registerRateLimiter(
+            name: 'betterauth-oauth',
+            maxAttempts: max(1, (int) ($limits['oauth']['max_attempts'] ?? $defaultMaxAttempts)),
+            decayMinutes: max(1, (int) ($limits['oauth']['decay_minutes'] ?? $defaultDecayMinutes)),
+            keyResolver: fn (Request $request): string => $this->resolveIpRateLimitKey($request, 'oauth'),
+        );
+
+        $this->registerRateLimiter(
+            name: 'betterauth-magic-link-send',
+            maxAttempts: max(1, (int) ($limits['magic_link_send']['max_attempts'] ?? $defaultMaxAttempts)),
+            decayMinutes: max(1, (int) ($limits['magic_link_send']['decay_minutes'] ?? $defaultDecayMinutes)),
+            keyResolver: fn (Request $request): string => $this->resolveEmailAwareRateLimitKey($request, 'magic-link-send'),
+        );
+
+        $this->registerRateLimiter(
+            name: 'betterauth-magic-link-verify',
+            maxAttempts: max(1, (int) ($limits['magic_link_verify']['max_attempts'] ?? $defaultMaxAttempts)),
+            decayMinutes: max(1, (int) ($limits['magic_link_verify']['decay_minutes'] ?? $defaultDecayMinutes)),
+            keyResolver: fn (Request $request): string => $this->resolveIpRateLimitKey($request, 'magic-link-verify'),
+        );
+
+        $this->registerRateLimiter(
+            name: 'betterauth-magic-link-check',
+            maxAttempts: max(1, (int) ($limits['magic_link_check']['max_attempts'] ?? $defaultMaxAttempts)),
+            decayMinutes: max(1, (int) ($limits['magic_link_check']['decay_minutes'] ?? $defaultDecayMinutes)),
+            keyResolver: fn (Request $request): string => $this->resolveEmailAwareRateLimitKey($request, 'magic-link-check'),
+        );
+    }
+
+    /**
+     * @param  \Closure(Request):string  $keyResolver
+     */
+    private function registerRateLimiter(
+        string $name,
+        int $maxAttempts,
+        int $decayMinutes,
+        \Closure $keyResolver,
+    ): void {
+        RateLimiter::for($name, function (Request $request) use ($name, $maxAttempts, $decayMinutes, $keyResolver): Limit {
+            return Limit::perMinutes($decayMinutes, $maxAttempts)
+                ->by($keyResolver($request))
+                ->response(function (Request $request, array $headers) use ($name): \Illuminate\Http\JsonResponse {
+                    return response()->json([
+                        'message' => 'Too many attempts. Please try again later.',
+                        'error' => 'rate_limited',
+                        'limiter' => $name,
+                    ], 429, $headers);
+                });
+        });
+    }
+
+    private function resolveEmailAwareRateLimitKey(Request $request, string $action): string
+    {
+        $email = strtolower(trim((string) $request->input('email', '')));
+
+        return sprintf('%s|%s|%s', $action, $request->ip() ?? 'unknown', $email);
+    }
+
+    private function resolveIpRateLimitKey(Request $request, string $action): string
+    {
+        return sprintf('%s|%s', $action, $request->ip() ?? 'unknown');
     }
 
     /**

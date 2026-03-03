@@ -30,7 +30,7 @@ final class GoogleProvider extends AbstractOAuthProvider
             'prompt' => 'consent',
         ];
 
-        return $this->getAuthorizationEndpoint() . '?' . http_build_query($params);
+        return $this->getAuthorizationEndpoint().'?'.http_build_query($params);
     }
 
     public function getAccessToken(string $code, string $redirectUri): string
@@ -47,7 +47,7 @@ final class GoogleProvider extends AbstractOAuthProvider
             ],
         );
 
-        if (!isset($response['access_token'])) {
+        if (! isset($response['access_token'])) {
             throw new \RuntimeException('Failed to obtain access token from Google');
         }
 

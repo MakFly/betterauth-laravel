@@ -695,7 +695,7 @@ ENV;
                 '/->withRouting\s*\(\s*/',
                 "->withRouting(\n        api: __DIR__.'/../routes/api.php',",
                 $content,
-                1
+                1,
             );
 
             $this->files->put($bootstrapPath, $content);
@@ -721,7 +721,7 @@ ENV;
 
                 // Prevent duplicate PHP opening tag/import when prepending to an existing routes file
                 $content = preg_replace('/^<\?php\s*/', '', $content) ?? $content;
-                $content = preg_replace('/^use Illuminate\\Support\\Facades\\Route;\s*/m', '', $content) ?? $content;
+                $content = preg_replace('/^use Illuminate\\\\Support\\\\Facades\\\\Route;\s*/m', '', $content) ?? $content;
                 $content = ltrim($content);
 
                 $this->files->put($apiPath, '<?php

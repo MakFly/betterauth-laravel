@@ -191,6 +191,8 @@ return [
     'magic_links' => [
         'enabled' => env('BETTER_AUTH_MAGIC_LINKS_ENABLED', false),
         'token_lifetime' => 900, // 15 minutes
+        // Optional safeguard for mail flooding by same email (0 disables cooldown)
+        'send_cooldown_seconds' => (int) env('BETTER_AUTH_MAGIC_LINK_COOLDOWN_SECONDS', 0),
     ],
 
     /*
@@ -221,6 +223,36 @@ return [
         'enabled' => env('BETTER_AUTH_RATE_LIMITING', true),
         'max_attempts' => 5,
         'decay_minutes' => 15,
+        'limits' => [
+            'login' => [
+                'max_attempts' => 5,
+                'decay_minutes' => 15,
+            ],
+            'register' => [
+                'max_attempts' => 5,
+                'decay_minutes' => 15,
+            ],
+            'refresh' => [
+                'max_attempts' => 20,
+                'decay_minutes' => 15,
+            ],
+            'oauth' => [
+                'max_attempts' => 20,
+                'decay_minutes' => 15,
+            ],
+            'magic_link_send' => [
+                'max_attempts' => 3,
+                'decay_minutes' => 15,
+            ],
+            'magic_link_verify' => [
+                'max_attempts' => 15,
+                'decay_minutes' => 15,
+            ],
+            'magic_link_check' => [
+                'max_attempts' => 15,
+                'decay_minutes' => 15,
+            ],
+        ],
     ],
 
     /*

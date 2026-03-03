@@ -292,3 +292,30 @@ describe('Password Update', function (): void {
             ->assertJsonValidationErrors(['current_password']);
     });
 });
+
+describe('Rate Limiting', function (): void {
+    it('rate limits repeated failed login attempts', function (): void {
+        $this->createTestUser([
+            'email' => 'ratelimit-login@example.com',
+            'password' => password_hash('correctpassword', PASSWORD_ARGON2ID),
+        ]);
+
+        foreach (range(1, 5) as $_) {
+            $this->postJson('/auth/login', [
+                'email' => 'ratelimit-login@example.com',
+                'password' => 'wrongpassword',
+            ])->assertStatus(422);
+        }
+
+        $limited = $this->postJson('/auth/login', [
+            'email' => 'ratelimit-login@example.com',
+            'password' => 'wrongpassword',
+        ]);
+
+        $limited->assertStatus(429)
+            ->assertJson([
+                'error' => 'rate_limited',
+                'limiter' => 'betterauth-login',
+            ]);
+    });
+});
