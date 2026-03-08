@@ -1,14 +1,12 @@
 {
   "name": "betterauth/laravel",
-  "description": "Modern authentication for Laravel with Paseto V4 tokens, OAuth, 2FA, Magic Links, and Passkeys",
+  "description": "Modern authentication for Laravel with Paseto V4 tokens, OAuth, 2FA, and Magic Links",
   "keywords": [
     "laravel",
     "authentication",
     "paseto",
     "oauth",
     "2fa",
-    "passkeys",
-    "webauthn",
     "magic-link"
   ],
   "license": "MIT",
@@ -21,13 +19,14 @@
   ],
   "require": {
     "php": "^8.2",
-    "betterauth/core": "*@dev",
     "illuminate/auth": "^10.0|^11.0|^12.0",
     "illuminate/contracts": "^10.0|^11.0|^12.0",
     "illuminate/database": "^10.0|^11.0|^12.0",
     "illuminate/http": "^10.0|^11.0|^12.0",
     "illuminate/routing": "^10.0|^11.0|^12.0",
-    "illuminate/support": "^10.0|^11.0|^12.0"
+    "illuminate/support": "^10.0|^11.0|^12.0",
+    "paragonie/paseto": "^3.1",
+    "ramsey/uuid": "^4.7"
   },
   "suggest": {
     "api-platform/laravel": "Expose BetterAuth endpoints inside API Platform OpenAPI docs",
@@ -43,7 +42,10 @@
   },
   "autoload": {
     "psr-4": {
-      "BetterAuth\\Laravel\\": "src/"
+      "BetterAuth\\Laravel\\": "src/",
+      "BetterAuth\\Core\\": "core-embedded/core/",
+      "BetterAuth\\Providers\\": "core-embedded/providers/",
+      "BetterAuth\\Contracts\\": "core-embedded/contracts/"
     }
   },
   "autoload-dev": {
