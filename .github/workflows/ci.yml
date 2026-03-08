@@ -45,24 +45,12 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Checkout betterauth-core
-        uses: actions/checkout@v4
-        with:
-          repository: MakFly/betterauth-core
-          path: betterauth-core
-          token: ${{ secrets.GITHUB_TOKEN }}
-
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php }}
           extensions: dom, curl, libxml, mbstring, zip, pcntl, pdo, sqlite, pdo_sqlite
           coverage: none
-
-      - name: Fix composer.json repositories
-        run: |
-          jq '.repositories = [{"type": "path", "url": "./betterauth-core", "options": {"symlink": true}}]' composer.json > composer.tmp.json
-          mv composer.tmp.json composer.json
 
       - name: Install dependencies
         run: |
@@ -86,24 +74,12 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Checkout betterauth-core
-        uses: actions/checkout@v4
-        with:
-          repository: MakFly/betterauth-core
-          path: betterauth-core
-          token: ${{ secrets.GITHUB_TOKEN }}
-
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
           php-version: '8.3'
           extensions: dom, curl, libxml, mbstring, zip
           coverage: none
-
-      - name: Fix composer.json repositories
-        run: |
-          jq '.repositories = [{"type": "path", "url": "./betterauth-core", "options": {"symlink": true}}]' composer.json > composer.tmp.json
-          mv composer.tmp.json composer.json
 
       - name: Install dependencies
         run: composer install --prefer-dist --no-interaction --no-progress
@@ -119,24 +95,12 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Checkout betterauth-core
-        uses: actions/checkout@v4
-        with:
-          repository: MakFly/betterauth-core
-          path: betterauth-core
-          token: ${{ secrets.GITHUB_TOKEN }}
-
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
           php-version: '8.3'
           extensions: dom, curl, libxml, mbstring, zip
           coverage: none
-
-      - name: Fix composer.json repositories
-        run: |
-          jq '.repositories = [{"type": "path", "url": "./betterauth-core", "options": {"symlink": true}}]' composer.json > composer.tmp.json
-          mv composer.tmp.json composer.json
 
       - name: Install dependencies
         run: composer install --prefer-dist --no-interaction --no-progress
