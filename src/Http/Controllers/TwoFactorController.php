@@ -25,8 +25,7 @@ final class TwoFactorController extends Controller
     public function __construct(
         private readonly TwoFactorService $twoFactor,
         private readonly ApiResponseFactory $responses,
-    ) {
-    }
+    ) {}
 
     /**
      * Generate 2FA setup data.

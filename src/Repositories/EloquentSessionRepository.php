@@ -16,8 +16,7 @@ final class EloquentSessionRepository
 {
     public function __construct(
         private readonly string $table = 'better_auth_sessions',
-    ) {
-    }
+    ) {}
 
     /**
      * Find a session by ID.

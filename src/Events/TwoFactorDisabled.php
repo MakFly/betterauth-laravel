@@ -14,6 +14,5 @@ final class TwoFactorDisabled
 
     public function __construct(
         public readonly Authenticatable $user,
-    ) {
-    }
+    ) {}
 }

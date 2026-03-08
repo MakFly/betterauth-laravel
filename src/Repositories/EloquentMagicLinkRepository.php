@@ -16,8 +16,7 @@ final class EloquentMagicLinkRepository implements MagicLinkStorageInterface
 {
     public function __construct(
         private readonly string $table = 'better_auth_magic_links',
-    ) {
-    }
+    ) {}
 
     public function store(string $token, string $email, int $expiresIn): MagicLinkToken
     {

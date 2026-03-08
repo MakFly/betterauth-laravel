@@ -26,8 +26,7 @@ final class RefreshToken
     public function __construct(
         private readonly TokenSignerInterface $tokenService,
         private readonly BetterAuthManager $auth,
-    ) {
-    }
+    ) {}
 
     /**
      * Handle an incoming request.

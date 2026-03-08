@@ -32,8 +32,7 @@ final class AuthController extends Controller
         private readonly AuthUserResponseFormatter $formatter,
         private readonly ApiResponseFactory $responses,
         private readonly ApiExceptionFactory $exceptions,
-    ) {
-    }
+    ) {}
 
     /**
      * Inscription d'un utilisateur.

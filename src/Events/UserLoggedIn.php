@@ -22,6 +22,5 @@ final class UserLoggedIn
     public function __construct(
         public readonly array $user,
         public readonly array $tokens,
-    ) {
-    }
+    ) {}
 }

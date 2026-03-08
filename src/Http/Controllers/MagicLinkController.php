@@ -28,8 +28,7 @@ final class MagicLinkController extends Controller
         private readonly MagicLinkService $magicLink,
         private readonly ApiResponseFactory $responses,
         private readonly ApiExceptionFactory $exceptions,
-    ) {
-    }
+    ) {}
 
     /**
      * Envoie un lien magique.

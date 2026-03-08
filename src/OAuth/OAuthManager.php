@@ -24,8 +24,7 @@ final class OAuthManager
     public function __construct(
         private readonly Application $app,
         private readonly array $providerConfigs,
-    ) {
-    }
+    ) {}
 
     /**
      * Get a provider instance by name.

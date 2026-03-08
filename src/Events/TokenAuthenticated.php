@@ -22,6 +22,5 @@ final class TokenAuthenticated
     public function __construct(
         public readonly Authenticatable $user,
         public readonly array $payload,
-    ) {
-    }
+    ) {}
 }
