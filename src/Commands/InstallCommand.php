@@ -7,7 +7,6 @@ namespace BetterAuth\Laravel\Commands;
 use BetterAuth\Laravel\Services\ConfigurationBuilder;
 use Illuminate\Console\Command;
 use Illuminate\Filesystem\Filesystem;
-
 use function Laravel\Prompts\confirm;
 use function Laravel\Prompts\multiselect;
 use function Laravel\Prompts\select;

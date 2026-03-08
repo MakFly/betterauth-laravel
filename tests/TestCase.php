@@ -71,7 +71,7 @@ abstract class TestCase extends OrchestraTestCase
      *
      * @param  array<string, mixed>  $attributes
      */
-    protected function createTestUser(array $attributes = []): \BetterAuth\Laravel\Tests\Fixtures\User
+    protected function createTestUser(array $attributes = []): Fixtures\User
     {
         return \BetterAuth\Laravel\Tests\Fixtures\User::create(array_merge([
             'id' => (string) \Illuminate\Support\Str::uuid7(),

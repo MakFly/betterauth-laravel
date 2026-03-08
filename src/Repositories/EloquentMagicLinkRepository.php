@@ -6,7 +6,6 @@ namespace BetterAuth\Laravel\Repositories;
 
 use BetterAuth\Core\Entities\MagicLinkToken;
 use BetterAuth\Core\Interfaces\MagicLinkStorageInterface;
-use DateTimeImmutable;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
@@ -17,7 +16,8 @@ final class EloquentMagicLinkRepository implements MagicLinkStorageInterface
 {
     public function __construct(
         private readonly string $table = 'better_auth_magic_links',
-    ) {}
+    ) {
+    }
 
     public function store(string $token, string $email, int $expiresIn): MagicLinkToken
     {

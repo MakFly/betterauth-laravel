@@ -15,7 +15,8 @@ final class EloquentTwoFactorRepository implements TotpStorageInterface
 {
     public function __construct(
         private readonly string $table = 'better_auth_totp_secrets',
-    ) {}
+    ) {
+    }
 
     public function store(string $userId, string $secret, array $metadata = []): bool
     {

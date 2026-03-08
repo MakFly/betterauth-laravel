@@ -10,9 +10,6 @@ parameters:
     tmpDir: build/phpstan
 
     ignoreErrors:
-        # betterauth-core (local dependency during development)
-        - '#class BetterAuth\\Core\\#'
-
         # Larastan env() rule - we use dynamic env vars for OAuth
         - '#Called .env. outside of the config directory#'
 
@@ -66,6 +63,3 @@ parameters:
 
         # Comparison with PHPDoc types
         - identifier: identical.alwaysFalse
-
-    stubFiles:
-        - stubs/phpstan/betterauth-core.stub

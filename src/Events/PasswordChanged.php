@@ -17,5 +17,6 @@ final class PasswordChanged
 
     public function __construct(
         public readonly string|int $userId,
-    ) {}
+    ) {
+    }
 }

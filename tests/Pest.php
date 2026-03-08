@@ -47,14 +47,14 @@ expect()->extend('toBeValidUuid', function () {
 |
 */
 
-function createUser(array $attributes = []): \Illuminate\Contracts\Auth\Authenticatable
+function createUser(array $attributes = []): Illuminate\Contracts\Auth\Authenticatable
 {
     $userClass = config('betterauth.user_model', 'App\\Models\\User');
 
     return $userClass::factory()->create($attributes);
 }
 
-function createAuthenticatedRequest(string $token): \Illuminate\Http\Request
+function createAuthenticatedRequest(string $token): Illuminate\Http\Request
 {
     $request = new \Illuminate\Http\Request;
     $request->headers->set('Authorization', "Bearer {$token}");

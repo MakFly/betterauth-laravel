@@ -17,5 +17,6 @@ final class UserLoggedOut
 
     public function __construct(
         public readonly string|int|null $userId,
-    ) {}
+    ) {
+    }
 }

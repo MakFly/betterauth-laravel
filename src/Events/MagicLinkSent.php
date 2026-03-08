@@ -17,5 +17,6 @@ final class MagicLinkSent
 
     public function __construct(
         public readonly string $email,
-    ) {}
+    ) {
+    }
 }

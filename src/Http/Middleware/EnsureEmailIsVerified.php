@@ -27,7 +27,7 @@ final class EnsureEmailIsVerified
             ], 401);
         }
 
-        if ($user->email_verified_at === null) {
+        if ($user->getAttribute('email_verified_at') === null) {
             return response()->json([
                 'message' => 'Your email address is not verified.',
                 'error' => 'email_not_verified',

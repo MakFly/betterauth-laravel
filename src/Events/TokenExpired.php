@@ -17,5 +17,6 @@ final class TokenExpired
 
     public function __construct(
         public readonly string $token,
-    ) {}
+    ) {
+    }
 }

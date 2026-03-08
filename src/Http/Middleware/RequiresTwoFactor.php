@@ -20,7 +20,8 @@ final class RequiresTwoFactor
 {
     public function __construct(
         private readonly TwoFactorService $twoFactorService,
-    ) {}
+    ) {
+    }
 
     /**
      * Handle an incoming request.

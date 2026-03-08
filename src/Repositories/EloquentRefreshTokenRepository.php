@@ -19,7 +19,8 @@ final class EloquentRefreshTokenRepository implements RefreshTokenRepositoryInte
 {
     public function __construct(
         private readonly string $table = 'better_auth_refresh_tokens',
-    ) {}
+    ) {
+    }
 
     public function findByToken(string $token): ?RefreshToken
     {

@@ -22,5 +22,6 @@ final class TokenRefreshed
     public function __construct(
         public readonly string $userId,
         public readonly array $tokens,
-    ) {}
+    ) {
+    }
 }

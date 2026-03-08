@@ -22,7 +22,8 @@ final class MagicLinkService
     public function __construct(
         private readonly string $table = 'better_auth_magic_links',
         private readonly int $expirationMinutes = 15,
-    ) {}
+    ) {
+    }
 
     /**
      * Send a magic link to the given email address.

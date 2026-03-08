@@ -17,5 +17,6 @@ final class MagicLinkVerified
 
     public function __construct(
         public readonly string $email,
-    ) {}
+    ) {
+    }
 }

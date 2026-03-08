@@ -17,5 +17,6 @@ final class EmailVerified
 
     public function __construct(
         public readonly string|int $userId,
-    ) {}
+    ) {
+    }
 }

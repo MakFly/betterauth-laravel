@@ -22,7 +22,8 @@ final class MagicLinkMail extends Mailable
     public function __construct(
         public readonly string $url,
         public readonly int $expirationMinutes = 15,
-    ) {}
+    ) {
+    }
 
     public function envelope(): Envelope
     {

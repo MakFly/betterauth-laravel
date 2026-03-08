@@ -89,7 +89,6 @@ final class BetterAuthGuard implements Guard
             }
 
             return $this->user;
-
         } catch (\BetterAuth\Core\Exceptions\TokenExpiredException $e) {
             $this->fireTokenExpiredEvent($token);
 

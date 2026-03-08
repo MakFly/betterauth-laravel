@@ -26,7 +26,8 @@ final class TwoFactorService
 
     public function __construct(
         private readonly string $table = 'better_auth_totp_secrets',
-    ) {}
+    ) {
+    }
 
     /**
      * Generate a new 2FA secret for a user.
