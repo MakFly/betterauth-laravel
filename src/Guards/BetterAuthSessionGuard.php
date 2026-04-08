@@ -189,21 +189,23 @@ final class BetterAuthSessionGuard implements Guard
         $sessionId = $this->session->get($this->getName().'_session_id');
         $request = request();
 
+        $deviceTrackingEnabled = config('betterauth.device_tracking.enabled', false);
+
+        $sessionData = [
+            'user_id' => $user->getAuthIdentifier(),
+            'ip_address' => $request->ip(),
+            'user_agent' => $request->userAgent(),
+            'device_type' => $deviceTrackingEnabled ? $this->detectDeviceType($request->userAgent()) : null,
+            'device_name' => $deviceTrackingEnabled ? $this->getDeviceName($request->userAgent()) : null,
+            'location' => null,
+            'expires_at' => now()->addMinutes(config('session.lifetime', 120)),
+            'last_activity_at' => now(),
+            'created_at' => now(),
+        ];
+
         DB::table(config('betterauth.tables.sessions'))->updateOrInsert(
-            [
-                'id' => $sessionId,
-            ],
-            [
-                'user_id' => $user->getAuthIdentifier(),
-                'ip_address' => $request->ip(),
-                'user_agent' => $request->userAgent(),
-                'device_type' => $this->detectDeviceType($request->userAgent()),
-                'device_name' => $this->getDeviceName($request->userAgent()),
-                'location' => null, // Could be enhanced with GeoIP
-                'expires_at' => now()->addMinutes(config('session.lifetime', 120)),
-                'last_activity_at' => now(),
-                'created_at' => now(),
-            ],
+            ['id' => $sessionId],
+            $sessionData,
         );
     }
 

@@ -51,6 +51,8 @@ describe('Session Mode Authentication', function (): void {
     });
 
     it('stores session in database with metadata', function (): void {
+        Config::set('betterauth.device_tracking.enabled', true);
+
         $user = $this->createTestUser([
             'email' => 'session@example.com',
             'password' => password_hash('Password123!', PASSWORD_ARGON2ID),
@@ -288,6 +290,8 @@ describe('Session Mode Authentication', function (): void {
 
 describe('Session Mode vs Sanctum Comparison', function (): void {
     it('demonstrates enhanced session tracking vs Sanctum', function (): void {
+        Config::set('betterauth.device_tracking.enabled', true);
+
         $user = $this->createTestUser([
             'email' => 'session@example.com',
             'password' => password_hash('Password123!', PASSWORD_ARGON2ID),

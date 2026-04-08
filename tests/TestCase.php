@@ -28,6 +28,9 @@ abstract class TestCase extends OrchestraTestCase
 
     protected function defineEnvironment($app): void
     {
+        // Required for encryption (used by TwoFactorService::encryptSecret)
+        $app['config']->set('app.key', 'base64:'.base64_encode(str_repeat('a', 32)));
+
         // Setup default database to use sqlite in-memory
         $app['config']->set('database.default', 'testing');
         $app['config']->set('database.connections.testing', [
@@ -43,9 +46,10 @@ abstract class TestCase extends OrchestraTestCase
         $app['config']->set('betterauth.tokens.access.lifetime', 3600);
         $app['config']->set('betterauth.tokens.refresh.lifetime', 2592000);
 
-        // Enable Magic Link and OAuth for testing
+        // Enable Magic Link, OAuth and 2FA for testing
         $app['config']->set('betterauth.magic_links.enabled', true);
         $app['config']->set('betterauth.oauth.enabled', true);
+        $app['config']->set('betterauth.2fa.enabled', true);
 
         // Setup auth configuration
         $app['config']->set('auth.guards.betterauth', [

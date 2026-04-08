@@ -139,13 +139,6 @@ final class BetterAuthGuard implements Guard
             return substr($header, 7);
         }
 
-        // Fallback to query parameter (for WebSocket connections, etc.)
-        $token = $this->request->query('token');
-
-        if (is_string($token) && $token !== '') {
-            return $token;
-        }
-
         return null;
     }
 

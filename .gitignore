@@ -31,3 +31,6 @@ clover.xml
 # SQLite
 *.sqlite
 *.sqlite-journal
+
+# instant-grep index
+.ig/
