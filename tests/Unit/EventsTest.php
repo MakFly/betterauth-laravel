@@ -2,10 +2,8 @@
 
 declare(strict_types=1);
 
-use BetterAuth\Laravel\Events\EmailVerified;
 use BetterAuth\Laravel\Events\MagicLinkSent;
 use BetterAuth\Laravel\Events\MagicLinkVerified;
-use BetterAuth\Laravel\Events\PasswordChanged;
 use BetterAuth\Laravel\Events\TokenAuthenticated;
 use BetterAuth\Laravel\Events\TokenExpired;
 use BetterAuth\Laravel\Events\TokenInvalid;
@@ -58,7 +56,7 @@ describe('UserRegistered event', function (): void {
     it('holds correct user data in payload', function (): void {
         $capturedEvent = null;
 
-        Event::listen(UserRegistered::class, function (UserRegistered $event) use (&$capturedEvent) {
+        Event::listen(UserRegistered::class, function (UserRegistered $event) use (&$capturedEvent): void {
             $capturedEvent = $event;
         });
 
@@ -290,7 +288,7 @@ describe('MagicLinkVerified event', function (): void {
             'created_at' => now(),
         ]);
 
-        $this->getJson('/auth/magic-link/verify?token=' . $token)
+        $this->getJson('/auth/magic-link/verify?token='.$token)
             ->assertStatus(200);
 
         Event::assertDispatched(MagicLinkVerified::class);
@@ -358,7 +356,7 @@ describe('Event data integrity', function (): void {
     it('UserLoggedIn holds user data and tokens', function (): void {
         $capturedEvent = null;
 
-        Event::listen(UserLoggedIn::class, function (UserLoggedIn $event) use (&$capturedEvent) {
+        Event::listen(UserLoggedIn::class, function (UserLoggedIn $event) use (&$capturedEvent): void {
             $capturedEvent = $event;
         });
 
@@ -378,7 +376,7 @@ describe('Event data integrity', function (): void {
     it('TokenRefreshed holds user_id and new tokens', function (): void {
         $capturedEvent = null;
 
-        Event::listen(TokenRefreshed::class, function (TokenRefreshed $event) use (&$capturedEvent) {
+        Event::listen(TokenRefreshed::class, function (TokenRefreshed $event) use (&$capturedEvent): void {
             $capturedEvent = $event;
         });
 

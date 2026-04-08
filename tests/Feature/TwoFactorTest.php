@@ -6,7 +6,6 @@ use BetterAuth\Laravel\Events\TwoFactorDisabled;
 use BetterAuth\Laravel\Events\TwoFactorEnabled;
 use BetterAuth\Laravel\Facades\BetterAuth;
 use BetterAuth\Laravel\Services\TwoFactorService;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Event;
 
 beforeEach(function (): void {
@@ -198,7 +197,7 @@ describe('2FA Verify', function (): void {
             ->postJson('/auth/2fa/enable', ['code' => generateTotpCode(
                 $this->withHeader('Authorization', "Bearer {$result['access_token']}")
                     ->postJson('/auth/2fa/setup')
-                    ->json('secret')
+                    ->json('secret'),
             )]);
 
         $response = $this->withHeader('Authorization', "Bearer {$result['access_token']}")

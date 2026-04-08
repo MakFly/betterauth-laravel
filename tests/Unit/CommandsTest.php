@@ -2,9 +2,6 @@
 
 declare(strict_types=1);
 
-use BetterAuth\Laravel\Commands\SecretCommand;
-use Illuminate\Filesystem\Filesystem;
-
 describe('SecretCommand', function (): void {
     it('generates secret and displays it with --show option', function (): void {
         $this->artisan('betterauth:secret', ['--show' => true])
@@ -13,56 +10,56 @@ describe('SecretCommand', function (): void {
     });
 
     it('generates secret without --show writes to .env file', function (): void {
-        $tmpDir = sys_get_temp_dir() . '/ba_secret_write_' . uniqid();
+        $tmpDir = sys_get_temp_dir().'/ba_secret_write_'.uniqid();
         mkdir($tmpDir);
-        file_put_contents($tmpDir . '/.env', "APP_ENV=testing\n");
+        file_put_contents($tmpDir.'/.env', "APP_ENV=testing\n");
 
         app()->setBasePath($tmpDir);
 
         $this->artisan('betterauth:secret')
             ->assertSuccessful();
 
-        $content = file_get_contents($tmpDir . '/.env');
+        $content = file_get_contents($tmpDir.'/.env');
         expect($content)->toContain('BETTER_AUTH_SECRET=');
 
-        unlink($tmpDir . '/.env');
+        unlink($tmpDir.'/.env');
         rmdir($tmpDir);
     });
 
     it('warns when secret already exists without --force', function (): void {
-        $tmpDir = sys_get_temp_dir() . '/ba_secret_' . uniqid();
+        $tmpDir = sys_get_temp_dir().'/ba_secret_'.uniqid();
         mkdir($tmpDir);
-        file_put_contents($tmpDir . '/.env', "BETTER_AUTH_SECRET=existingsecret\n");
+        file_put_contents($tmpDir.'/.env', "BETTER_AUTH_SECRET=existingsecret\n");
 
         app()->setBasePath($tmpDir);
 
         $this->artisan('betterauth:secret')
             ->assertFailed();
 
-        unlink($tmpDir . '/.env');
+        unlink($tmpDir.'/.env');
         rmdir($tmpDir);
     });
 
     it('overwrites secret when --force is used', function (): void {
-        $tmpDir = sys_get_temp_dir() . '/ba_secret_force_' . uniqid();
+        $tmpDir = sys_get_temp_dir().'/ba_secret_force_'.uniqid();
         mkdir($tmpDir);
-        file_put_contents($tmpDir . '/.env', "BETTER_AUTH_SECRET=oldsecret\n");
+        file_put_contents($tmpDir.'/.env', "BETTER_AUTH_SECRET=oldsecret\n");
 
         app()->setBasePath($tmpDir);
 
         $this->artisan('betterauth:secret', ['--force' => true])
             ->assertSuccessful();
 
-        $content = file_get_contents($tmpDir . '/.env');
+        $content = file_get_contents($tmpDir.'/.env');
         expect($content)->not->toContain('oldsecret');
         expect($content)->toContain('BETTER_AUTH_SECRET=');
 
-        unlink($tmpDir . '/.env');
+        unlink($tmpDir.'/.env');
         rmdir($tmpDir);
     });
 
     it('fails when .env file does not exist', function (): void {
-        $tmpDir = sys_get_temp_dir() . '/ba_secret_noenv_' . uniqid();
+        $tmpDir = sys_get_temp_dir().'/ba_secret_noenv_'.uniqid();
         mkdir($tmpDir);
 
         app()->setBasePath($tmpDir);
