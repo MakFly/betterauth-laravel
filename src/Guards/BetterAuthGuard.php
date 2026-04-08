@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace BetterAuth\Laravel\Guards;
 
+use BetterAuth\Core\Exceptions\InvalidTokenException;
+use BetterAuth\Core\Exceptions\TokenExpiredException;
 use BetterAuth\Core\Interfaces\TokenSignerInterface;
 use BetterAuth\Laravel\Events\TokenAuthenticated;
 use BetterAuth\Laravel\Events\TokenExpired;
@@ -89,11 +91,11 @@ final class BetterAuthGuard implements Guard
             }
 
             return $this->user;
-        } catch (\BetterAuth\Core\Exceptions\TokenExpiredException $e) {
+        } catch (TokenExpiredException $e) {
             $this->fireTokenExpiredEvent($token);
 
             return null;
-        } catch (\BetterAuth\Core\Exceptions\InvalidTokenException $e) {
+        } catch (InvalidTokenException $e) {
             $this->fireTokenInvalidEvent($token, $e->getMessage());
 
             return null;

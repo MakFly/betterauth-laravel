@@ -8,6 +8,7 @@ use BetterAuth\Laravel\Services\MagicLinkService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Str;
 
 describe('Magic Link', function (): void {
     it('sends magic link to existing user', function (): void {
@@ -79,7 +80,7 @@ describe('Magic Link', function (): void {
         $hashedToken = hash('sha256', $token);
 
         DB::table('better_auth_magic_links')->insert([
-            'id' => (string) \Illuminate\Support\Str::uuid7(),
+            'id' => (string) Str::uuid7(),
             'email' => 'verify@example.com',
             'token' => $hashedToken,
             'expires_at' => now()->addMinutes(15),
@@ -123,7 +124,7 @@ describe('Magic Link', function (): void {
         $hashedToken = hash('sha256', $token);
 
         DB::table('better_auth_magic_links')->insert([
-            'id' => (string) \Illuminate\Support\Str::uuid7(),
+            'id' => (string) Str::uuid7(),
             'email' => 'newuser@example.com',
             'token' => $hashedToken,
             'expires_at' => now()->addMinutes(15),
@@ -148,7 +149,7 @@ describe('Magic Link', function (): void {
         $hashedToken = hash('sha256', $token);
 
         DB::table('better_auth_magic_links')->insert([
-            'id' => (string) \Illuminate\Support\Str::uuid7(),
+            'id' => (string) Str::uuid7(),
             'email' => 'expired@example.com',
             'token' => $hashedToken,
             'expires_at' => now()->subMinutes(1), // Expired
@@ -167,7 +168,7 @@ describe('Magic Link', function (): void {
         $hashedToken = hash('sha256', $token);
 
         DB::table('better_auth_magic_links')->insert([
-            'id' => (string) \Illuminate\Support\Str::uuid7(),
+            'id' => (string) Str::uuid7(),
             'email' => 'used@example.com',
             'token' => $hashedToken,
             'expires_at' => now()->addMinutes(15),
@@ -193,7 +194,7 @@ describe('Magic Link', function (): void {
         $hashedToken = hash('sha256', $token);
 
         DB::table('better_auth_magic_links')->insert([
-            'id' => (string) \Illuminate\Support\Str::uuid7(),
+            'id' => (string) Str::uuid7(),
             'email' => 'check@example.com',
             'token' => $hashedToken,
             'expires_at' => now()->addMinutes(15),
@@ -252,7 +253,7 @@ describe('Magic Link', function (): void {
         $hashedToken = hash('sha256', $token);
 
         DB::table('better_auth_magic_links')->insert([
-            'id' => (string) \Illuminate\Support\Str::uuid7(),
+            'id' => (string) Str::uuid7(),
             'email' => 'compat@example.com',
             'token' => $hashedToken,
             'expires_at' => now()->addMinutes(15),
@@ -276,7 +277,7 @@ describe('Magic Link', function (): void {
         $hashedToken = hash('sha256', $token);
 
         DB::table('better_auth_magic_links')->insert([
-            'id' => (string) \Illuminate\Support\Str::uuid7(),
+            'id' => (string) Str::uuid7(),
             'email' => 'post-verify@example.com',
             'token' => $hashedToken,
             'expires_at' => now()->addMinutes(15),
@@ -317,7 +318,7 @@ describe('Magic Link Service', function (): void {
     it('generates secure tokens', function (): void {
         $service = app(MagicLinkService::class);
 
-        $reflection = new \ReflectionClass($service);
+        $reflection = new ReflectionClass($service);
         $method = $reflection->getMethod('generateToken');
         $method->setAccessible(true);
 
@@ -342,7 +343,7 @@ describe('Magic Link Service', function (): void {
         $hashedToken = hash('sha256', $rawToken);
 
         DB::table('better_auth_magic_links')->insert([
-            'id' => (string) \Illuminate\Support\Str::uuid7(),
+            'id' => (string) Str::uuid7(),
             'email' => 'getemail@example.com',
             'token' => $hashedToken,
             'expires_at' => now()->addMinutes(15),

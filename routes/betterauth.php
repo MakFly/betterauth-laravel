@@ -3,6 +3,8 @@
 declare(strict_types=1);
 
 use BetterAuth\Laravel\Http\Controllers\AuthController;
+use BetterAuth\Laravel\Http\Controllers\MagicLinkController;
+use BetterAuth\Laravel\Http\Controllers\TwoFactorController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -65,15 +67,15 @@ Route::prefix($prefix)
 
         // Magic Link routes (when enabled)
         if (config('betterauth.magic_links.enabled', false)) {
-            Route::post('/magic-link', [\BetterAuth\Laravel\Http\Controllers\MagicLinkController::class, 'send'])
+            Route::post('/magic-link', [MagicLinkController::class, 'send'])
                 ->middleware('throttle:betterauth-magic-link-send')
                 ->name('magic-link.send');
 
-            Route::match(['get', 'post'], '/magic-link/verify', [\BetterAuth\Laravel\Http\Controllers\MagicLinkController::class, 'verify'])
+            Route::match(['get', 'post'], '/magic-link/verify', [MagicLinkController::class, 'verify'])
                 ->middleware('throttle:betterauth-magic-link-verify')
                 ->name('magic-link.verify');
 
-            Route::post('/magic-link/check', [\BetterAuth\Laravel\Http\Controllers\MagicLinkController::class, 'check'])
+            Route::post('/magic-link/check', [MagicLinkController::class, 'check'])
                 ->middleware('throttle:betterauth-magic-link-check')
                 ->name('magic-link.check');
         }
@@ -81,25 +83,25 @@ Route::prefix($prefix)
         // 2FA routes (when enabled)
         if (config('betterauth.2fa.enabled', false)) {
             Route::middleware('auth:betterauth')->prefix('2fa')->name('2fa.')->group(function (): void {
-                Route::get('/status', [\BetterAuth\Laravel\Http\Controllers\TwoFactorController::class, 'status'])
+                Route::get('/status', [TwoFactorController::class, 'status'])
                     ->name('status');
 
-                Route::post('/setup', [\BetterAuth\Laravel\Http\Controllers\TwoFactorController::class, 'setup'])
+                Route::post('/setup', [TwoFactorController::class, 'setup'])
                     ->name('setup');
 
-                Route::post('/enable', [\BetterAuth\Laravel\Http\Controllers\TwoFactorController::class, 'enable'])
+                Route::post('/enable', [TwoFactorController::class, 'enable'])
                     ->name('enable');
 
-                Route::post('/verify', [\BetterAuth\Laravel\Http\Controllers\TwoFactorController::class, 'verify'])
+                Route::post('/verify', [TwoFactorController::class, 'verify'])
                     ->name('verify');
 
-                Route::post('/recovery', [\BetterAuth\Laravel\Http\Controllers\TwoFactorController::class, 'recovery'])
+                Route::post('/recovery', [TwoFactorController::class, 'recovery'])
                     ->name('recovery');
 
-                Route::post('/recovery-codes', [\BetterAuth\Laravel\Http\Controllers\TwoFactorController::class, 'regenerateRecoveryCodes'])
+                Route::post('/recovery-codes', [TwoFactorController::class, 'regenerateRecoveryCodes'])
                     ->name('recovery-codes');
 
-                Route::delete('/', [\BetterAuth\Laravel\Http\Controllers\TwoFactorController::class, 'disable'])
+                Route::delete('/', [TwoFactorController::class, 'disable'])
                     ->name('disable');
             });
         }

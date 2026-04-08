@@ -2,8 +2,11 @@
 
 declare(strict_types=1);
 
+use Carbon\Carbon;
+use Illuminate\Contracts\Auth\UserProvider;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 beforeEach(function (): void {
     // Configure for session mode testing
@@ -72,14 +75,14 @@ describe('Session Mode Authentication', function (): void {
         expect($session->user_agent)->toBeString();
         expect($session->device_type)->toBeIn(['desktop', 'mobile', 'tablet', 'unknown']);
         // SQLite returns dates as strings, convert to Carbon for type check
-        expect(\Carbon\Carbon::parse($session->expires_at))->toBeInstanceOf(\Carbon\Carbon::class);
+        expect(Carbon::parse($session->expires_at))->toBeInstanceOf(Carbon::class);
     });
 
     it('detects device type correctly', function (): void {
         $guard = auth('betterauth-session');
 
         // Access private method via reflection
-        $reflection = new \ReflectionClass($guard);
+        $reflection = new ReflectionClass($guard);
         $method = $reflection->getMethod('detectDeviceType');
         $method->setAccessible(true);
 
@@ -92,7 +95,7 @@ describe('Session Mode Authentication', function (): void {
     it('gets device name from user agent', function (): void {
         $guard = auth('betterauth-session');
 
-        $reflection = new \ReflectionClass($guard);
+        $reflection = new ReflectionClass($guard);
         $method = $reflection->getMethod('getDeviceName');
         $method->setAccessible(true);
 
@@ -128,13 +131,13 @@ describe('Session Mode Authentication', function (): void {
             ->first();
 
         expect($session)->not->toBeNull();
-        expect(\Carbon\Carbon::parse($session->expires_at)->isPast())->toBeTrue();
+        expect(Carbon::parse($session->expires_at)->isPast())->toBeTrue();
     });
 
     it('returns null for invalid session user', function (): void {
         // Set a fake user ID in session
         $guard = auth('betterauth-session');
-        $guard->get_session()->put($guard->getName().'_id', (string) \Illuminate\Support\Str::uuid7());
+        $guard->get_session()->put($guard->getName().'_id', (string) Str::uuid7());
 
         expect($guard->user())->toBeNull();
         expect($guard->check())->toBeFalse();
@@ -154,7 +157,7 @@ describe('Session Mode Authentication', function (): void {
 
         // Create additional sessions
         DB::table('better_auth_sessions')->insert([
-            'id' => (string) \Illuminate\Support\Str::uuid7(),
+            'id' => (string) Str::uuid7(),
             'user_id' => $user->id,
             'ip_address' => '127.0.0.1',
             'user_agent' => 'Test',
@@ -194,7 +197,7 @@ describe('Session Mode Authentication', function (): void {
 
         // Create additional sessions
         DB::table('better_auth_sessions')->insert([
-            'id' => (string) \Illuminate\Support\Str::uuid7(),
+            'id' => (string) Str::uuid7(),
             'user_id' => $user->id,
             'ip_address' => '127.0.0.2',
             'user_agent' => 'Other Device',
@@ -215,7 +218,7 @@ describe('Session Mode Authentication', function (): void {
             ->first();
 
         expect($currentSession)->not->toBeNull();
-        expect(\Carbon\Carbon::parse($currentSession->expires_at)->isFuture())->toBeTrue();
+        expect(Carbon::parse($currentSession->expires_at)->isFuture())->toBeTrue();
 
         // Other session should be expired
         $otherSessions = DB::table('better_auth_sessions')
@@ -248,7 +251,7 @@ describe('Session Mode Authentication', function (): void {
 
         // Simulate a new request by clearing the cached user
         // (In real HTTP requests, the guard is instantiated fresh each time)
-        $reflection = new \ReflectionClass($guard);
+        $reflection = new ReflectionClass($guard);
         $property = $reflection->getProperty('user');
         $property->setAccessible(true);
         $property->setValue($guard, null);
@@ -261,7 +264,7 @@ describe('Session Mode Authentication', function (): void {
             ->value('last_activity_at');
 
         // Use Carbon to compare timestamps
-        expect(\Carbon\Carbon::parse($updatedActivity)->greaterThan(\Carbon\Carbon::parse($initialActivity)))->toBeTrue();
+        expect(Carbon::parse($updatedActivity)->greaterThan(Carbon::parse($initialActivity)))->toBeTrue();
     });
 
     it('returns correct guard name', function (): void {
@@ -284,7 +287,7 @@ describe('Session Mode Authentication', function (): void {
     it('returns user provider', function (): void {
         $guard = auth('betterauth-session');
 
-        expect($guard->getProvider())->toBeInstanceOf(\Illuminate\Contracts\Auth\UserProvider::class);
+        expect($guard->getProvider())->toBeInstanceOf(UserProvider::class);
     });
 });
 
@@ -333,7 +336,7 @@ describe('Session Mode vs Sanctum Comparison', function (): void {
 
         // Create additional session
         DB::table('better_auth_sessions')->insert([
-            'id' => (string) \Illuminate\Support\Str::uuid7(),
+            'id' => (string) Str::uuid7(),
             'user_id' => $user->id,
             'ip_address' => '127.0.0.2',
             'user_agent' => 'Other Device',

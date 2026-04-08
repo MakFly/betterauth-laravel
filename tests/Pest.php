@@ -1,6 +1,9 @@
 <?php
 
 declare(strict_types=1);
+use BetterAuth\Laravel\Tests\TestCase;
+use Illuminate\Contracts\Auth\Authenticatable;
+use Illuminate\Http\Request;
 
 /*
 |--------------------------------------------------------------------------
@@ -13,7 +16,7 @@ declare(strict_types=1);
 |
 */
 
-uses(BetterAuth\Laravel\Tests\TestCase::class)->in('Feature', 'Unit');
+uses(TestCase::class)->in('Feature', 'Unit');
 
 /*
 |--------------------------------------------------------------------------
@@ -47,16 +50,16 @@ expect()->extend('toBeValidUuid', function () {
 |
 */
 
-function createUser(array $attributes = []): Illuminate\Contracts\Auth\Authenticatable
+function createUser(array $attributes = []): Authenticatable
 {
     $userClass = config('betterauth.user_model', 'App\\Models\\User');
 
     return $userClass::factory()->create($attributes);
 }
 
-function createAuthenticatedRequest(string $token): Illuminate\Http\Request
+function createAuthenticatedRequest(string $token): Request
 {
-    $request = new \Illuminate\Http\Request;
+    $request = new Request;
     $request->headers->set('Authorization', "Bearer {$token}");
 
     return $request;

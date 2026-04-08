@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace BetterAuth\Laravel\Http\Controllers;
 
+use BetterAuth\Core\Exceptions\InvalidCredentialsException;
+use BetterAuth\Core\Exceptions\InvalidTokenException;
+use BetterAuth\Laravel\OAuth\OAuthManager;
 use BetterAuth\Laravel\Services\AuthUserResponseFormatter;
 use BetterAuth\Laravel\Services\BetterAuthManager;
 use BetterAuth\Laravel\Support\ApiExceptionFactory;
@@ -13,6 +16,8 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\ValidationException;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 
 /**
  * BetterAuth API Controller.
@@ -39,7 +44,7 @@ final class AuthController extends Controller
      *
      * @param  Request  $request  Requête HTTP d'inscription
      *
-     * @throws \Illuminate\Validation\ValidationException
+     * @throws ValidationException
      */
     public function register(Request $request): JsonResponse
     {
@@ -72,7 +77,7 @@ final class AuthController extends Controller
      *
      * @param  Request  $request  Requête HTTP de login
      *
-     * @throws \Illuminate\Validation\ValidationException
+     * @throws ValidationException
      */
     public function login(Request $request): JsonResponse
     {
@@ -95,7 +100,7 @@ final class AuthController extends Controller
                 'token_type' => $result['token_type'],
                 'expires_in' => $result['expires_in'],
             ], $request, noStore: true);
-        } catch (\BetterAuth\Core\Exceptions\InvalidCredentialsException $e) {
+        } catch (InvalidCredentialsException $e) {
             throw $this->exceptions->validation([
                 'email' => ['The provided credentials are incorrect.'],
             ]);
@@ -141,7 +146,7 @@ final class AuthController extends Controller
                 'token_type' => $result['token_type'],
                 'expires_in' => $result['expires_in'],
             ], $request, noStore: true);
-        } catch (\BetterAuth\Core\Exceptions\InvalidTokenException $e) {
+        } catch (InvalidTokenException $e) {
             return $this->responses->error('Invalid refresh token', 'token_invalid', 401, $request, noStore: true);
         }
     }
@@ -190,7 +195,7 @@ final class AuthController extends Controller
      *
      * @param  Request  $request  Requête HTTP
      *
-     * @throws \Illuminate\Validation\ValidationException
+     * @throws ValidationException
      */
     public function updatePassword(Request $request): JsonResponse
     {
@@ -223,7 +228,7 @@ final class AuthController extends Controller
             return $this->responses->ok([
                 'message' => 'Password updated successfully',
             ], $request, noStore: true);
-        } catch (\BetterAuth\Core\Exceptions\InvalidCredentialsException $e) {
+        } catch (InvalidCredentialsException $e) {
             throw $this->exceptions->validation([
                 'current_password' => ['The current password is incorrect.'],
             ]);
@@ -235,7 +240,7 @@ final class AuthController extends Controller
      *
      * @param  string  $provider  Provider OAuth
      *
-     * @throws \Symfony\Component\HttpKernel\Exception\HttpException
+     * @throws HttpException
      */
     public function oauthRedirect(string $provider): RedirectResponse
     {
@@ -244,7 +249,7 @@ final class AuthController extends Controller
         }
 
         try {
-            $oauthManager = app(\BetterAuth\Laravel\OAuth\OAuthManager::class);
+            $oauthManager = app(OAuthManager::class);
 
             return $oauthManager->redirect($provider);
         } catch (\InvalidArgumentException $e) {
@@ -262,7 +267,7 @@ final class AuthController extends Controller
      * @param  Request  $request  Requête HTTP de callback
      * @param  string  $provider  Provider OAuth
      *
-     * @throws \Symfony\Component\HttpKernel\Exception\HttpException
+     * @throws HttpException
      */
     public function oauthCallback(Request $request, string $provider): JsonResponse
     {
@@ -271,13 +276,13 @@ final class AuthController extends Controller
         }
 
         try {
-            $oauthManager = app(\BetterAuth\Laravel\OAuth\OAuthManager::class);
+            $oauthManager = app(OAuthManager::class);
             $result = $oauthManager->handleCallback($provider);
 
             $user = $result['user'];
             $isNew = $result['is_new'];
 
-            $authManager = app(\BetterAuth\Laravel\Services\BetterAuthManager::class);
+            $authManager = app(BetterAuthManager::class);
             $tokens = $authManager->createTokensForUser($user);
 
             $response = [

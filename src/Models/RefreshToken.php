@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace BetterAuth\Laravel\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Carbon;
 
 /**
  * Eloquent model for BetterAuth refresh tokens.
@@ -14,10 +16,10 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property string $id
  * @property string $token
  * @property string $user_id
- * @property \Illuminate\Support\Carbon $expires_at
+ * @property Carbon $expires_at
  * @property bool $revoked
  * @property string|null $replaced_by
- * @property \Illuminate\Support\Carbon $created_at
+ * @property Carbon $created_at
  */
 final class RefreshToken extends Model
 {
@@ -60,8 +62,8 @@ final class RefreshToken extends Model
     /**
      * Scope to active (non-revoked, non-expired) tokens.
      *
-     * @param  \Illuminate\Database\Eloquent\Builder<RefreshToken>  $query
-     * @return \Illuminate\Database\Eloquent\Builder<RefreshToken>
+     * @param  Builder<RefreshToken>  $query
+     * @return Builder<RefreshToken>
      */
     public function scopeActive($query)
     {

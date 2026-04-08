@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace BetterAuth\Laravel\Tests;
 
 use BetterAuth\Laravel\BetterAuthServiceProvider;
+use BetterAuth\Laravel\Tests\Fixtures\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Support\Str;
 use Orchestra\Testbench\TestCase as OrchestraTestCase;
 
 abstract class TestCase extends OrchestraTestCase
@@ -59,10 +61,10 @@ abstract class TestCase extends OrchestraTestCase
 
         $app['config']->set('auth.providers.betterauth', [
             'driver' => 'betterauth',
-            'model' => \BetterAuth\Laravel\Tests\Fixtures\User::class,
+            'model' => User::class,
         ]);
 
-        $app['config']->set('betterauth.user_model', \BetterAuth\Laravel\Tests\Fixtures\User::class);
+        $app['config']->set('betterauth.user_model', User::class);
     }
 
     protected function defineDatabaseMigrations(): void
@@ -75,10 +77,10 @@ abstract class TestCase extends OrchestraTestCase
      *
      * @param  array<string, mixed>  $attributes
      */
-    protected function createTestUser(array $attributes = []): Fixtures\User
+    protected function createTestUser(array $attributes = []): User
     {
-        return \BetterAuth\Laravel\Tests\Fixtures\User::create(array_merge([
-            'id' => (string) \Illuminate\Support\Str::uuid7(),
+        return User::create(array_merge([
+            'id' => (string) Str::uuid7(),
             'email' => 'test@example.com',
             'password' => password_hash('password123', PASSWORD_ARGON2ID),
             'name' => 'Test User',

@@ -5,6 +5,7 @@ declare(strict_types=1);
 use BetterAuth\Core\Entities\User;
 use BetterAuth\Laravel\Repositories\EloquentUserRepository;
 use BetterAuth\Laravel\Tests\Fixtures\User as UserModel;
+use Illuminate\Support\Str;
 
 beforeEach(function (): void {
     $this->artisan('migrate', ['--database' => 'testing']);
@@ -18,7 +19,7 @@ describe('EloquentUserRepository - findById', function (): void {
 
     it('returns User entity when found', function (): void {
         $model = UserModel::create([
-            'id' => (string) \Illuminate\Support\Str::uuid7(),
+            'id' => (string) Str::uuid7(),
             'email' => 'find@example.com',
             'password' => password_hash('password', PASSWORD_ARGON2ID),
             'roles' => ['ROLE_USER'],
@@ -38,7 +39,7 @@ describe('EloquentUserRepository - findByEmail', function (): void {
 
     it('returns User entity when email found', function (): void {
         UserModel::create([
-            'id' => (string) \Illuminate\Support\Str::uuid7(),
+            'id' => (string) Str::uuid7(),
             'email' => 'byemail@example.com',
             'password' => password_hash('password', PASSWORD_ARGON2ID),
             'roles' => ['ROLE_USER'],
@@ -76,7 +77,7 @@ describe('EloquentUserRepository - create', function (): void {
 describe('EloquentUserRepository - update', function (): void {
     it('updates an existing user', function (): void {
         $model = UserModel::create([
-            'id' => (string) \Illuminate\Support\Str::uuid7(),
+            'id' => (string) Str::uuid7(),
             'email' => 'before@example.com',
             'password' => password_hash('pass', PASSWORD_ARGON2ID),
             'roles' => ['ROLE_USER'],
@@ -92,7 +93,7 @@ describe('EloquentUserRepository - update', function (): void {
 describe('EloquentUserRepository - delete', function (): void {
     it('deletes an existing user and returns true', function (): void {
         $model = UserModel::create([
-            'id' => (string) \Illuminate\Support\Str::uuid7(),
+            'id' => (string) Str::uuid7(),
             'email' => 'delete@example.com',
             'password' => password_hash('pass', PASSWORD_ARGON2ID),
             'roles' => ['ROLE_USER'],
@@ -112,7 +113,7 @@ describe('EloquentUserRepository - delete', function (): void {
 describe('EloquentUserRepository - verifyEmail', function (): void {
     it('sets email_verified_at and returns true', function (): void {
         $model = UserModel::create([
-            'id' => (string) \Illuminate\Support\Str::uuid7(),
+            'id' => (string) Str::uuid7(),
             'email' => 'unverified@example.com',
             'password' => password_hash('pass', PASSWORD_ARGON2ID),
             'roles' => ['ROLE_USER'],

@@ -27,7 +27,7 @@ use Illuminate\Support\Facades\Facade;
  * @method static array getConfig()
  * @method static array createTokensForUser(\Illuminate\Database\Eloquent\Model&\Illuminate\Contracts\Auth\Authenticatable $user)
  *
- * @see \BetterAuth\Laravel\Services\BetterAuthManager
+ * @see BetterAuthManager
  */
 final class BetterAuth extends Facade
 {

@@ -6,6 +6,7 @@ namespace BetterAuth\Laravel\Repositories;
 
 use BetterAuth\Core\Entities\User;
 use BetterAuth\Core\Interfaces\UserRepositoryInterface;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
 
@@ -192,9 +193,9 @@ final class EloquentUserRepository implements UserRepositoryInterface
     /**
      * Get the query builder instance.
      *
-     * @return \Illuminate\Database\Eloquent\Builder<Model>
+     * @return Builder<Model>
      */
-    private function query(): \Illuminate\Database\Eloquent\Builder
+    private function query(): Builder
     {
         return $this->modelClass::query();
     }

@@ -4,9 +4,12 @@ declare(strict_types=1);
 
 namespace BetterAuth\Laravel\OAuth;
 
+use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
+use Laravel\Socialite\SocialiteServiceProvider;
 
 /**
  * OAuth Manager.
@@ -42,7 +45,7 @@ final class OAuthManager
         }
 
         // If Socialite is available, use it
-        if (class_exists(\Laravel\Socialite\SocialiteServiceProvider::class)) {
+        if (class_exists(SocialiteServiceProvider::class)) {
             return new SocialiteOAuthProvider($name, $config);
         }
 
@@ -70,7 +73,7 @@ final class OAuthManager
      * 4. Returns the user with tokens
      *
      * @param  string  $provider  Provider name
-     * @return array{user: \Illuminate\Contracts\Auth\Authenticatable, is_new: bool, oauth_account: \stdClass|null}
+     * @return array{user: Authenticatable, is_new: bool, oauth_account: \stdClass|null}
      *
      * @throws \RuntimeException
      */
@@ -141,7 +144,7 @@ final class OAuthManager
     /**
      * Find a user by ID.
      */
-    private function getUserModel(string $userId): ?\Illuminate\Contracts\Auth\Authenticatable
+    private function getUserModel(string $userId): ?Authenticatable
     {
         $userModel = config('betterauth.user_model');
 
@@ -151,7 +154,7 @@ final class OAuthManager
     /**
      * Find a user by email.
      */
-    private function findUserByEmail(string $email): ?\Illuminate\Contracts\Auth\Authenticatable
+    private function findUserByEmail(string $email): ?Authenticatable
     {
         $userModel = config('betterauth.user_model');
 
@@ -163,14 +166,14 @@ final class OAuthManager
      *
      * @param  array<string, mixed>  $userData
      */
-    private function createUserFromOAuth(array $userData): \Illuminate\Contracts\Auth\Authenticatable
+    private function createUserFromOAuth(array $userData): Authenticatable
     {
         $userModel = config('betterauth.user_model');
         $user = new $userModel;
 
         // Generate UUID if configured
         if (config('betterauth.id_strategy') === 'uuid') {
-            $user->{$user->getKeyName()} = (string) \Illuminate\Support\Str::uuid7();
+            $user->{$user->getKeyName()} = (string) Str::uuid7();
         }
 
         $user->fill([
@@ -190,7 +193,7 @@ final class OAuthManager
     /**
      * Link an OAuth account to a user.
      *
-     * @param  \Illuminate\Contracts\Auth\Authenticatable  $user
+     * @param  Authenticatable  $user
      * @param  array<string, mixed>  $userData
      */
     private function linkOAuthAccount($user, string $provider, array $userData): void
@@ -218,7 +221,7 @@ final class OAuthManager
             return false;
         }
 
-        return class_exists(\Laravel\Socialite\SocialiteServiceProvider::class);
+        return class_exists(SocialiteServiceProvider::class);
     }
 
     /**
@@ -228,7 +231,7 @@ final class OAuthManager
      */
     public function getAvailableProviders(): array
     {
-        if (! class_exists(\Laravel\Socialite\SocialiteServiceProvider::class)) {
+        if (! class_exists(SocialiteServiceProvider::class)) {
             return [];
         }
 

@@ -5,12 +5,14 @@ declare(strict_types=1);
 namespace BetterAuth\Laravel\Http\Controllers;
 
 use BetterAuth\Laravel\Facades\BetterAuth;
+use BetterAuth\Laravel\Services\BetterAuthManager;
 use BetterAuth\Laravel\Services\MagicLinkService;
 use BetterAuth\Laravel\Support\ApiExceptionFactory;
 use BetterAuth\Laravel\Support\ApiResponseFactory;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
+use Illuminate\Validation\ValidationException;
 
 /**
  * Contrôleur Magic Link.
@@ -53,7 +55,7 @@ final class MagicLinkController extends Controller
      *
      * @param  Request  $request  Requête HTTP
      *
-     * @throws \Illuminate\Validation\ValidationException
+     * @throws ValidationException
      */
     public function verify(Request $request): JsonResponse
     {
@@ -79,7 +81,7 @@ final class MagicLinkController extends Controller
             ]);
         }
 
-        $authManager = app(\BetterAuth\Laravel\Services\BetterAuthManager::class);
+        $authManager = app(BetterAuthManager::class);
         $userModel = $authManager->getUserModel($result['email']);
 
         if ($userModel === null) {

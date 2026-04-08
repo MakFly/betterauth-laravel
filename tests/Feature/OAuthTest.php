@@ -120,7 +120,7 @@ describe('OAuth Authentication Flow (Google)', function (): void {
                 'created_at' => now(),
                 'updated_at' => now(),
             ]);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $exception = true;
         }
 

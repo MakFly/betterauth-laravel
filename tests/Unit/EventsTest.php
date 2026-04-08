@@ -14,8 +14,10 @@ use BetterAuth\Laravel\Events\UserLoggedIn;
 use BetterAuth\Laravel\Events\UserLoggedOut;
 use BetterAuth\Laravel\Events\UserRegistered;
 use BetterAuth\Laravel\Facades\BetterAuth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Str;
 
 beforeEach(function (): void {
     $this->artisan('migrate', ['--database' => 'testing']);
@@ -279,8 +281,8 @@ describe('MagicLinkVerified event', function (): void {
         $token = bin2hex(random_bytes(32));
         $hashedToken = hash('sha256', $token);
 
-        \Illuminate\Support\Facades\DB::table('better_auth_magic_links')->insert([
-            'id' => (string) \Illuminate\Support\Str::uuid7(),
+        DB::table('better_auth_magic_links')->insert([
+            'id' => (string) Str::uuid7(),
             'email' => 'ev-magic-verify@example.com',
             'token' => $hashedToken,
             'expires_at' => now()->addMinutes(15),

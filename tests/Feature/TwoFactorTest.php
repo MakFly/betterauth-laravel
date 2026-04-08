@@ -6,7 +6,9 @@ use BetterAuth\Laravel\Events\TwoFactorDisabled;
 use BetterAuth\Laravel\Events\TwoFactorEnabled;
 use BetterAuth\Laravel\Facades\BetterAuth;
 use BetterAuth\Laravel\Services\TwoFactorService;
+use BetterAuth\Laravel\Tests\Fixtures\User;
 use Illuminate\Support\Facades\Event;
+use Illuminate\Support\Str;
 
 beforeEach(function (): void {
     $this->artisan('migrate', ['--database' => 'testing']);
@@ -647,10 +649,10 @@ function generateTotpCode(string $secret): string
 /**
  * Create and persist a test user for unit-level service tests.
  */
-function createTestUser(string $email): \BetterAuth\Laravel\Tests\Fixtures\User
+function createTestUser(string $email): User
 {
-    return \BetterAuth\Laravel\Tests\Fixtures\User::create([
-        'id' => (string) \Illuminate\Support\Str::uuid7(),
+    return User::create([
+        'id' => (string) Str::uuid7(),
         'email' => $email,
         'password' => password_hash('password123', PASSWORD_ARGON2ID),
         'name' => 'Test User',

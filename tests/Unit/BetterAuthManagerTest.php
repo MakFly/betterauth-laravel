@@ -2,6 +2,8 @@
 
 declare(strict_types=1);
 
+use BetterAuth\Core\Exceptions\InvalidTokenException;
+use BetterAuth\Core\Interfaces\TokenSignerInterface;
 use BetterAuth\Laravel\Facades\BetterAuth;
 use BetterAuth\Laravel\Services\BetterAuthManager;
 
@@ -65,7 +67,7 @@ describe('BetterAuth Facade', function (): void {
         $threw = false;
         try {
             BetterAuth::verify('invalid.token.here');
-        } catch (\Throwable) {
+        } catch (Throwable) {
             $threw = true;
         }
         expect($threw)->toBeTrue();
@@ -145,7 +147,7 @@ describe('Token Refresh', function (): void {
 
         // Old refresh token should be consumed (one-time use)
         expect(fn () => BetterAuth::refresh($result['refresh_token']))
-            ->toThrow(\BetterAuth\Core\Exceptions\InvalidTokenException::class);
+            ->toThrow(InvalidTokenException::class);
     });
 
     it('signs out and revokes token', function (): void {
@@ -158,7 +160,7 @@ describe('Token Refresh', function (): void {
 
         // Token should be revoked
         expect(fn () => BetterAuth::refresh($result['refresh_token']))
-            ->toThrow(\BetterAuth\Core\Exceptions\InvalidTokenException::class);
+            ->toThrow(InvalidTokenException::class);
     });
 });
 
@@ -175,6 +177,6 @@ describe('Config Access', function (): void {
     it('returns token service', function (): void {
         $tokenService = BetterAuth::getTokenService();
 
-        expect($tokenService)->toBeInstanceOf(\BetterAuth\Core\Interfaces\TokenSignerInterface::class);
+        expect($tokenService)->toBeInstanceOf(TokenSignerInterface::class);
     });
 });

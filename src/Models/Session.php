@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace BetterAuth\Laravel\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Carbon;
 
 /**
  * Eloquent model for BetterAuth sessions.
@@ -18,9 +20,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property string|null $device_type
  * @property string|null $device_name
  * @property string|null $location
- * @property \Illuminate\Support\Carbon $expires_at
- * @property \Illuminate\Support\Carbon $last_activity_at
- * @property \Illuminate\Support\Carbon $created_at
+ * @property Carbon $expires_at
+ * @property Carbon $last_activity_at
+ * @property Carbon $created_at
  */
 final class Session extends Model
 {
@@ -66,8 +68,8 @@ final class Session extends Model
     /**
      * Scope to active (non-expired) sessions.
      *
-     * @param  \Illuminate\Database\Eloquent\Builder<Session>  $query
-     * @return \Illuminate\Database\Eloquent\Builder<Session>
+     * @param  Builder<Session>  $query
+     * @return Builder<Session>
      */
     public function scopeActive($query)
     {

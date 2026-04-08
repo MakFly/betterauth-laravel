@@ -20,6 +20,7 @@ use BetterAuth\Laravel\Services\BetterAuthManager;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Filesystem\Filesystem;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\RateLimiter;
@@ -346,7 +347,7 @@ final class BetterAuthServiceProvider extends ServiceProvider
         RateLimiter::for($name, function (Request $request) use ($name, $maxAttempts, $decayMinutes, $keyResolver): Limit {
             return Limit::perMinutes($decayMinutes, $maxAttempts)
                 ->by($keyResolver($request))
-                ->response(function (Request $request, array $headers) use ($name): \Illuminate\Http\JsonResponse {
+                ->response(function (Request $request, array $headers) use ($name): JsonResponse {
                     return response()->json([
                         'message' => 'Too many attempts. Please try again later.',
                         'error' => 'rate_limited',
